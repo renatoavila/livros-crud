@@ -42,7 +42,7 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbz0uDsDJk4c7VgLSpQtzEUaWx8UWf9w0aG-XXdgrl4kxs-ZARib0ODmptw9LbRE7eqO/exec';
 
     async function carregarLivros() {
-      const res = await fetch(`${API_URL}?doGetList`);
+      const res = await fetch(API_URL);
       const livros = await res.json();
       const tbody = document.querySelector('#tabelaLivros tbody');
       tbody.innerHTML = '';
@@ -70,7 +70,10 @@
     }
 
     async function excluir(id) {
-      await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
       carregarLivros();
     }
 
@@ -87,11 +90,17 @@
         livro.id = id;
         await fetch(API_URL, {
           method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify(livro),
         });
       } else {
         await fetch(API_URL, {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify(livro),
         });
       }
