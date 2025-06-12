@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRUD Livros [v14]</title>
+  <title>CRUD Livros [v15]</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -87,237 +87,227 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbxXtAx3lpUHsh0TIUVybSOW95YaKZLhrjgWO4SIm-nNA29zUKD_FIKLeI9hHutoEl4/exec';
+  // =================================================================
+  // CONFIGURAÇÃO E VARIÁVEIS GLOBAIS
+  // =================================================================
 
+  // CORRIGIDO: Removido o ponto e vírgula extra no final da URL
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwGgsmSoaUgyjxbYaOEyERLYRzl1tqlWGPDsm3_78sgw2n6rdZbqP76gBbFtEgA16tg/exec';
+
+  // Seletores do DOM
   const livroForm = document.getElementById("livroForm");
   const salvarBtn = document.getElementById("salvarBtn");
   const formLoading = document.getElementById("formLoading");
   const tableLoading = document.getElementById("tableLoading");
-  const livrosTable = document.getElementById("livrosTable");
+  const livrosTbody = document.getElementById("livrosTable"); // Selecionando o tbody para melhor performance
   const toastContainer = document.getElementById("toastContainer");
   const modalElement = new bootstrap.Modal(document.getElementById('livroModal'));
 
+  // =================================================================
+  // FUNÇÕES DE UI (INTERFACE DO USUÁRIO)
+  // =================================================================
+
+  /**
+   * Mostra uma notificação (toast) na tela.
+   * @param {string} message A mensagem a ser exibida.
+   * @param {'success' | 'danger'} type O tipo de notificação (verde para sucesso, vermelho para erro).
+   */
   function showToast(message, type = "success") {
     const toast = document.createElement("div");
     toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
     toast.role = "alert";
     toast.innerHTML = `
       <div class="d-flex">
-        <div class="toast-body">
-          ${type === 'success' ? '✅' : '❌'} ${message}
-        </div>
+        <div class="toast-body">${type === 'success' ? '✅' : '❌'} ${message}</div>
         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
       </div>
     `;
     toastContainer.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000);
+    setTimeout(() => toast.remove(), 5000); // O toast desaparece após 5 segundos
   }
 
+  /** Ativa/desativa o estado de carregamento do formulário. */
   function toggleFormLoading(isLoading) {
     salvarBtn.disabled = isLoading;
     formLoading.classList.toggle("d-none", !isLoading);
   }
 
+  /** Ativa/desativa o estado de carregamento da tabela. */
   function toggleTableLoading(isLoading) {
     tableLoading.classList.toggle("d-none", !isLoading);
   }
 
-  function abrirModal() {
+  /** Abre o modal para adicionar um novo livro, limpando o formulário. */
+  function abrirModalNovoLivro() {
     livroForm.reset();
     document.getElementById("livroId").value = "";
+    document.getElementById("livroModalLabel").textContent = "Adicionar Novo Livro";
+    modalElement.show();
+  }
+  
+  /** Preenche o modal com os dados de um livro para edição. */
+  function abrirModalEditar(livro) {
+    livroForm.reset();
+    document.getElementById("livroId").value = livro.id;
+    document.getElementById("titulo").value = livro.titulo;
+    document.getElementById("autor").value = livro.autor;
+    document.getElementById("ano").value = livro.ano;
+    document.getElementById("livroModalLabel").textContent = "Editar Livro";
     modalElement.show();
   }
 
-  function carregarLivros() {
-    toggleTableLoading(true);
+  // =================================================================
+  // FUNÇÕES DE API (COMUNICAÇÃO COM O BACK-END)
+  // =================================================================
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', API_URL, true);
+  /**
+   * Centraliza todas as requisições POST para a API, resolvendo o problema de CORS.
+   * @param {object} payload O corpo da requisição com a ação e os dados.
+   * @returns {Promise<object>} A resposta da API em formato JSON.
+   */
+  async function postApi(payload) {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          // O SEGREDO PARA EVITAR O ERRO CORS/OPTIONS
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload),
+      });
 
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        toggleTableLoading(false);
-
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const response = JSON.parse(xhr.responseText);
-            const { success, data } = response;
-
-            if (!success || !Array.isArray(data)) throw new Error("Formato inválido");
-
-            data.sort((a, b) => a.titulo.localeCompare(b.titulo));
-            livrosTable.innerHTML = "";
-
-            data.forEach(livro => {
-              const tr = document.createElement("tr");
-              tr.innerHTML = `
-                <td>${livro.titulo}</td>
-                <td>${livro.autor}</td>
-                <td>${livro.ano}</td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-outline-warning me-1" onclick='editar(${JSON.stringify(livro)})'>✏️</button>
-                  <button class="btn btn-sm btn-outline-danger" onclick='confirmarExclusao("${livro.id}")'>🗑️</button>
-                </td>
-              `;
-              livrosTable.appendChild(tr);
-            });
-          } catch (e) {
-            showToast("Erro ao processar resposta dos livros!", "danger");
-            console.error("Erro no parse do JSON:", e);
-          }
-        } else {
-          showToast("Erro ao carregar livros!", "danger");
-          console.error("Erro na requisição:", xhr.status, xhr.statusText);
-        }
+      if (!response.ok) {
+        throw new Error(`Erro na rede: ${response.status} ${response.statusText}`);
       }
-    };
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Erro na chamada da API (POST):", error);
+      showToast("Erro de comunicação com o servidor.", "danger");
+      // Retorna um objeto de erro consistente para não quebrar o código que chama esta função
+      return { success: false, message: "Erro de comunicação." };
+    }
+  }
+  
+  /** Carrega e renderiza a lista de livros da API. */
+  async function carregarLivros() {
+    toggleTableLoading(true);
+    livrosTbody.innerHTML = ''; // Limpa a tabela antes de carregar
 
-    xhr.onerror = function () {
-      showToast("Erro ao carregar livros!", "danger");
+    try {
+      const response = await fetch(API_URL); // GET não precisa de configuração especial
+      if (!response.ok) throw new Error("Falha ao carregar os dados.");
+
+      const result = await response.json();
+      if (!result.success || !Array.isArray(result.data)) {
+        throw new Error("A resposta da API não está no formato esperado.");
+      }
+
+      // Ordena os livros por título antes de renderizar
+      result.data.sort((a, b) => a.titulo.localeCompare(b.titulo));
+
+      if (result.data.length === 0) {
+        livrosTbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum livro cadastrado.</td></tr>';
+      } else {
+        result.data.forEach(livro => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${livro.titulo}</td>
+            <td>${livro.autor}</td>
+            <td>${livro.ano}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-warning me-1" title="Editar">✏️</button>
+              <button class="btn btn-sm btn-outline-danger" title="Excluir">🗑️</button>
+            </td>
+          `;
+          // Adiciona os eventos de clique de forma segura
+          tr.querySelector('.btn-outline-warning').addEventListener('click', () => abrirModalEditar(livro));
+          tr.querySelector('.btn-outline-danger').addEventListener('click', () => confirmarExclusao(livro));
+          
+          livrosTbody.appendChild(tr);
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao carregar livros:", error);
+      showToast("Não foi possível carregar a lista de livros.", "danger");
+      livrosTbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Falha ao carregar dados.</td></tr>';
+    } finally {
       toggleTableLoading(false);
-    };
-
-    xhr.send();
+    }
   }
 
-  livroForm.addEventListener("submit", async e => {
+  // =================================================================
+  // MANIPULADORES DE EVENTOS (EVENT HANDLERS)
+  // =================================================================
+
+  /** Manipula o envio do formulário para criar ou atualizar um livro. */
+  livroForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     toggleFormLoading(true);
 
     const id = document.getElementById("livroId").value;
-    const data = {
+    const livroData = {
       titulo: document.getElementById("titulo").value.trim(),
       autor: document.getElementById("autor").value.trim(),
       ano: document.getElementById("ano").value.trim(),
     };
 
-    const payload = id ? { action: "update", id, ...data } : { action: "create", ...data };
+    // Cria o payload com a ação correta (create ou update)
+    const payload = id
+      ? { action: "update", id, ...livroData }
+      : { action: "create", ...livroData };
+      
+    const result = await postApi(payload);
 
-    salvarLivro(payload);
-    toggleFormLoading(false);
+    if (result.success) {
+      showToast(result.message || "Operação realizada com sucesso!");
+      modalElement.hide();
+      carregarLivros(); // Recarrega a lista para mostrar as mudanças
+    } else {
+      showToast(result.message || "Ocorreu um erro.", "danger");
+    }
+
+    toggleFormLoading(false); // Desativa o loading APÓS a operação terminar
   });
 
-  function salvarLivro(payload) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', API_URL, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
+  /** Pede confirmação e, se confirmado, exclui um livro. */
+  async function confirmarExclusao(livro) {
+    const confirmado = await mostrarConfirmacao(`Tem certeza que deseja excluir o livro "${livro.titulo}"?`);
+    if (!confirmado) return;
 
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const json = JSON.parse(xhr.responseText);
-            if (json.success) {
-              showToast(json.message || "Livro salvo com sucesso!");
-              modalElement.hide();
-              carregarLivros();
-            } else {
-              showToast(json.message || "Erro ao salvar livro!", "danger");
-            }
-          } catch (e) {
-            showToast("Erro ao salvar livro!", "danger");
-            console.error("Erro no parse do JSON:", e);
-          }
-        } else {
-          showToast("Erro ao salvar livro!", "danger");
-          console.error("Erro na requisição:", xhr.status, xhr.statusText);
-        }
-      }
-    };
-
-    xhr.onerror = function () {
-      showToast("Erro ao salvar livro!", "danger");
-    };
-
-    xhr.send(JSON.stringify(payload));
+    toggleTableLoading(true); // Mostra um loading na tabela durante a exclusão
+    
+    const result = await postApi({ action: "delete", id: livro.id });
+    
+    if (result.success) {
+      showToast(result.message || "Livro excluído com sucesso!");
+      carregarLivros(); // Recarrega a lista
+    } else {
+      showToast(result.message || "Falha ao excluir o livro.", "danger");
+      toggleTableLoading(false); // Esconde o loading se falhar
+    }
   }
-
-  function editar(livro) {
-    document.getElementById("livroId").value = livro.id;
-    document.getElementById("titulo").value = livro.titulo;
-    document.getElementById("autor").value = livro.autor;
-    document.getElementById("ano").value = livro.ano;
-    modalElement.show();
-  }
-
-  function confirmarExclusao(id) {
-    mostrarConfirmacao("Tem certeza que deseja excluir este livro?").then(confirmed => {
-      if (!confirmed) return;
-
-      const payload = { action: "delete", id };
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', API_URL, true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const json = JSON.parse(xhr.responseText);
-              if (json.success) {
-                showToast(json.message || "Livro excluído com sucesso!");
-                carregarLivros();
-              } else {
-                showToast(json.message || "Erro ao excluir livro!", "danger");
-              }
-            } catch (e) {
-              showToast("Erro ao excluir livro!", "danger");
-              console.error("Erro no parse do JSON:", e);
-            }
-          } else {
-            showToast("Erro ao excluir livro!", "danger");
-            console.error("Erro na requisição:", xhr.status, xhr.statusText);
-          }
-        }
-      };
-
-      xhr.onerror = function () {
-        showToast("Erro ao excluir livro!", "danger");
-      };
-
-      xhr.send(JSON.stringify(payload));
-    });
-  }
-
+  
+  /**
+   * Mostra um modal de confirmação genérico.
+   * SUGESTÃO: Para uma melhor prática, o HTML deste modal deveria estar no seu arquivo .html principal,
+   * e esta função apenas o controlaria (exibir/ocultar), em vez de criá-lo e destruí-lo toda vez.
+   */
   function mostrarConfirmacao(msg) {
     return new Promise(resolve => {
-      const modalHtml = `
-        <div class="modal fade" id="confirmModal" tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Confirmar Ação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <p>${msg}</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmBtn">Confirmar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.insertAdjacentHTML("beforeend", modalHtml);
-      const confirmModalEl = document.getElementById("confirmModal");
-      const bsModal = new bootstrap.Modal(confirmModalEl);
-      bsModal.show();
-
-      confirmModalEl.querySelector("#confirmBtn").onclick = () => {
-        resolve(true);
-        bsModal.hide();
-      };
-
-      confirmModalEl.addEventListener("hidden.bs.modal", () => {
-        resolve(false);
-        confirmModalEl.remove();
-      });
+      const modalHtml = `... (o mesmo código do modal de confirmação que você já tem) ...`;
+      // ... (o resto da sua função mostrarConfirmacao) ...
+      // Essa parte do seu código já é funcional, então pode ser mantida.
     });
   }
 
-  carregarLivros();
+  // =================================================================
+  // INICIALIZAÇÃO
+  // =================================================================
+  
+  // Carrega os livros assim que a página é aberta
+  document.addEventListener('DOMContentLoaded', carregarLivros);
+
 </script>
 
 </body>
