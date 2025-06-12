@@ -130,10 +130,13 @@
   async function carregarLivros() {
     toggleTableLoading(true);
     try {
+      const data = new URLSearchParams();
+      data.append("action", "get");
+      
       const res = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get' })
+        headers: { "Content-Type": "text/plain" },
+        body: data.toString()
       });
       const { success, data } = await res.json();
       if (!success) throw new Error();
