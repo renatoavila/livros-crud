@@ -292,59 +292,53 @@
       toggleTableLoading(false); // Esconde o loading se falhar
     }
   }
-  
-  /**
-   * Mostra um modal de confirmação genérico.
-   * SUGESTÃO: Para uma melhor prática, o HTML deste modal deveria estar no seu arquivo .html principal,
-   * e esta função apenas o controlaria (exibir/ocultar), em vez de criá-lo e destruí-lo toda vez.
-   */
-/**
- * Mostra um modal de confirmação genérico e aguarda a resposta do usuário.
- * @param {string} msg A mensagem a ser exibida no modal.
- * @returns {Promise<boolean>} Retorna `true` se o usuário confirmar, `false` caso contrário.
- */
-function mostrarConfirmacao(msg) {
-  // 1. Pega os elementos do modal que já existem no HTML
-  const modalEl = document.getElementById('confirmacaoModal');
-  const mensagemEl = document.getElementById('confirmacaoMensagem');
-  const confirmarBtn = document.getElementById('confirmarBtn');
-  const cancelarBtn = document.getElementById('cancelarBtn');
-
-  // 2. Cria uma instância do modal Bootstrap
-  const bsModal = new bootstrap.Modal(modalEl);
-
-  // 3. Retorna uma Promise, que nos permite usar 'await' para esperar a decisão do usuário
+  function mostrarConfirmacao(msg) {
   return new Promise(resolve => {
-    // Define a mensagem personalizada
-    mensagemEl.textContent = msg;
+    const modalHtml = `
+      <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirmar Ação</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p>${msg}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-danger" id="confirmBtn">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
 
-    const onConfirm = () => {
-      bsModal.hide();
-      resolve(true);
-    };
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    const confirmModalEl = document.getElementById("confirmModal");
+    const bsModal = new bootstrap.Modal(confirmModalEl);
+    let isResolved = false;
 
-    const onCancel = () => {
-      bsModal.hide();
-      resolve(false);
-    };
-
-    // Adiciona os ouvintes de evento. A opção { once: true } garante que o evento
-    // seja acionado apenas uma vez e depois removido automaticamente, evitando bugs.
-    confirmarBtn.addEventListener('click', onConfirm, { once: true });
-    cancelarBtn.addEventListener('click', onCancel, { once: true });
-    
-    // O Bootstrap também dispara um evento ao fechar. Usamos para resolver como 'false'.
-    modalEl.addEventListener('hidden.bs.modal', () => {
-        // Remove os listeners para garantir que não haja vazamento de memória ou chamadas duplicadas
-        confirmarBtn.removeEventListener('click', onConfirm);
-        cancelarBtn.removeEventListener('click', onCancel);
-        resolve(false);
-    }, { once: true });
-
-    // 4. Mostra o modal
     bsModal.show();
+
+    confirmModalEl.querySelector("#confirmBtn").onclick = () => {
+      if (!isResolved) {
+        isResolved = true;
+        resolve(true);
+        bsModal.hide();
+      }
+    };
+
+    confirmModalEl.addEventListener("hidden.bs.modal", () => {
+      if (!isResolved) {
+        isResolved = true;
+        resolve(false);
+      }
+      confirmModalEl.remove();
+    });
   });
 }
+
   // =================================================================
   // INICIALIZAÇÃO
   // =================================================================
