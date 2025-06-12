@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>CRUD Livros [v12.4]</title>
+  <title>CRUD Livros [v12.5]</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -127,36 +127,59 @@
     modalElement.show();
   }
 
-  async function carregarLivros() {
-    toggleTableLoading(true);
-    try {      
-      const res = await fetch(API_URL, {
-        method: 'GET'
-      });
-      const { success, data } = await res.json();
-      if (!success) throw new Error();
+ function carregarLivros() {
+  toggleTableLoading(true);
 
-      data.sort((a, b) => a.titulo.localeCompare(b.titulo));
-      livrosTable.innerHTML = "";
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', API_URL, true);
 
-      data.forEach(livro => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${livro.titulo}</td>
-          <td>${livro.autor}</td>
-          <td>${livro.ano}</td>
-          <td class="text-end">
-            <button class="btn btn-sm btn-outline-warning me-1" onclick='editar(${JSON.stringify(livro)})'>✏️</button>
-            <button class="btn btn-sm btn-outline-danger" onclick='confirmarExclusao("${livro.id}")'>🗑️</button>
-          </td>
-        `;
-        livrosTable.appendChild(tr);
-      });
-    } catch (err) {
-      showToast("Erro ao carregar livros!", "danger");
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) { // requisição finalizada
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          // Aqui no seu código original, você esperava { success, data }
+          // Mas seu Apps Script está retornando só a lista, então adaptamos:
+          const data = JSON.parse(xhr.responseText);
+
+          // Se sua API retornasse { success: true, data: [...] }, descomente e adapte:
+          // const { success, data } = JSON.parse(xhr.responseText);
+          // if (!success) throw new Error();
+
+          data.sort((a, b) => a.titulo.localeCompare(b.titulo));
+          livrosTable.innerHTML = "";
+
+          data.forEach(livro => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${livro.titulo}</td>
+              <td>${livro.autor}</td>
+              <td>${livro.ano}</td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-warning me-1" onclick='editar(${JSON.stringify(livro)})'>✏️</button>
+                <button class="btn btn-sm btn-outline-danger" onclick='confirmarExclusao("${livro.id}")'>🗑️</button>
+              </td>
+            `;
+            livrosTable.appendChild(tr);
+          });
+        } catch (e) {
+          showToast("Erro ao carregar livros!", "danger");
+          console.error("Erro no parse do JSON:", e);
+        }
+      } else {
+        showToast("Erro ao carregar livros!", "danger");
+        console.error("Erro na requisição:", xhr.status, xhr.statusText);
+      }
+      toggleTableLoading(false);
     }
+  };
+
+  xhr.onerror = function () {
+    showToast("Erro ao carregar livros!", "danger");
     toggleTableLoading(false);
-  }
+  };
+
+  xhr.send();
+}
 
   livroForm.addEventListener("submit", async e => {
     e.preventDefault();
