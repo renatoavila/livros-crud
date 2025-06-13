@@ -9,7 +9,8 @@
     body {
       background-color: #f4f6f9;
     }
-    .card {
+ 
+    .card,  .header {
       border-radius: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
@@ -97,7 +98,7 @@
 </div>
 
  
-<div class="bg-white rounded-4 shadow-sm p-3 px-md-4 mb-4 d-flex flex-column flex-md-row align-items-stretch gap-3">
+<div class="bg-white rounded-4 shadow-sm p-3 px-md-4 mb-4 d-flex flex-column flex-md-row align-items-stretch gap-3 header">
   <div class="flex-grow-1">
     <div class="input-group">
       <span class="input-group-text bg-white border-end-0">🔍</span>
@@ -111,12 +112,15 @@
 
 
   <!-- Lista de livros -->
-  <div class="card p-4">
-    <h5 class="mb-3">📖 Lista de Livros</h5>
+<div class="card p-4">
+    <h5 class="mb-1">📖 Lista de Livros</h5>
+    <small id="bookCount" class="text-muted mb-3 d-block">Total de livros: 0</small>
+
     <div id="tableLoading" class="d-flex justify-content-center my-3 d-none">
       <div class="spinner-border text-primary" role="status"></div>
     </div>
-    <table id="table"  class="table table-hover align-middle">
+
+    <table id="table" class="table table-hover align-middle">
       <thead class="table-light">
         <tr>
           <th>Título</th>
@@ -274,6 +278,8 @@
       if (result.data.length === 0) {
         livrosTbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum livro cadastrado.</td></tr>';
       } else {
+        const total = result.data.livros.length;
+        document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
         result.data.forEach(livro => {
           const tr = document.createElement("tr");
           const statusLeituraSttela = livro.sttela && livro.sttela.trim() !== "não" ? "✅" : "❌";
