@@ -131,6 +131,9 @@
           <th class="text-center">Renato</th>
           <th class="text-end">Ações</th>
         </tr>
+        <tr id="mensagemSemResultados" class="text-center text-muted d-none">
+          <td colspan="6">Nenhum livro encontrado com o termo <strong id="termoBuscado"></strong>.</td>
+        </tr>
       </thead>
       <tbody id="livrosTable"></tbody>
     </table>
@@ -417,27 +420,38 @@
   // BUSCA
   // =================================================================
 
-  function filtrarTabela() {
-    const filtro = document.getElementById('buscaInput').value.toLowerCase();
-    const tabela = document.getElementById('table');
-    const linhas = tabela.tBodies[0].rows;
+function filtrarTabela() {
+  const filtro = document.getElementById('buscaInput').value.toLowerCase();
+  const tabela = document.getElementById('table');
+  const linhas = tabela.tBodies[0].rows;
 
-    for (let i = 0; i < linhas.length; i++) {
-      const linha = linhas[i];
-      const textoLinha = linha.textContent.toLowerCase();
+  let encontrou = false;
 
-      if (textoLinha.includes(filtro)) {
-        linha.style.display = '';
-      } else {
-        linha.style.display = 'none';
-      }
-    }
+  for (let i = 0; i < linhas.length; i++) {
+    const linha = linhas[i];
+    // Pular a linha da mensagem
+    if (linha.id === "mensagemSemResultados") continue;
+
+    const textoLinha = linha.textContent.toLowerCase();
+    const corresponde = textoLinha.includes(filtro);
+
+    linha.style.display = corresponde ? '' : 'none';
+    if (corresponde) encontrou = true;
   }
 
-  function limparFiltro() {
-          document.getElementById("buscaInput").value = "";
-          filtrarTabela();
+  const mensagem = document.getElementById("mensagemSemResultados");
+  const termo = document.getElementById("termoBuscado");
+
+  if (!encontrou && filtro.trim() !== "") {
+    termo.innerHTML = filtro;
+    mensagem.classList.remove("d-none");
+  } else {
+    mensagem.classList.add("d-none");
+  }
 }
+
+
+ 
 
   // =================================================================
   // INICIALIZAÇÃO
