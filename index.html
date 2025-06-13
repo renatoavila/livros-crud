@@ -113,8 +113,10 @@
 
   <!-- Lista de livros -->
 <div class="card p-4">
-    <h5 class="mb-1">📖 Lista de Livros</h5>
-    <small id="bookCount" class="text-muted mb-3 d-block">Total de livros: 0</small>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">📖 Lista de Livros</h5>
+    <small id="bookCount" class="text-muted">Total de livros: 0</small>
+  </div>
 
     <div id="tableLoading" class="d-flex justify-content-center my-3 d-none">
       <div class="spinner-border text-primary" role="status"></div>
@@ -278,7 +280,7 @@
       if (result.data.length === 0) {
         livrosTbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum livro cadastrado.</td></tr>';
       } else {
-        const total = result.data.livros.length;
+        const total = result.data.length;
         document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
         result.data.forEach(livro => {
           const tr = document.createElement("tr");
