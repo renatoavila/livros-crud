@@ -306,13 +306,13 @@
             <td class="text-center">${statusLeituraSttela}</td>
             <td class="text-center">${statusLeituraRenato}</td>
             <td class="text-end">
-              <button class="btn btn-sm me-1" title="Editar">✏️</button>
-              <button class="btn btn-sm" title="Excluir">🗑️</button>
+              <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
+              <button class="btn btn-sm remove" title="Excluir">🗑️</button>
             </td>
           `;
           // Adiciona os eventos de clique de forma segura
-          tr.querySelector('.btn-outline-warning').addEventListener('click', () => abrirModalEditar(livro));
-          tr.querySelector('.btn-outline-danger').addEventListener('click', () => confirmarExclusao(livro));
+          tr.querySelector('.edit').addEventListener('click', () => abrirModalEditar(livro));
+          tr.querySelector('.remove').addEventListener('click', () => confirmarExclusao(livro));
           
           livrosTbody.appendChild(tr);
         });
