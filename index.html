@@ -266,8 +266,8 @@
       } else {
         result.data.forEach(livro => {
           const tr = document.createElement("tr");
-          const statusLeituraSttela = livro.sttela && livro.sttela.trim() !== "" ? "✅" : "❌";
-          const statusLeituraRenato = livro.renato && livro.renato.trim() !== "" ? "✅" :  "❌";
+          const statusLeituraSttela = livro.sttela && livro.sttela.trim() !== "não" ? "✅" : "❌";
+          const statusLeituraRenato = livro.renato && livro.renato.trim() !== "não" ? "✅" :  "❌";
           const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
 
           tr.innerHTML = `
