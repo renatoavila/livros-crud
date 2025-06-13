@@ -10,7 +10,7 @@
       background-color: #f4f6f9;
     }
  
-    .card,  .header {
+    .card {
       border-radius: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
@@ -21,12 +21,20 @@
     .btn {
       border-radius: 999px;
     }
-    .toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 1055;
-    }
+  .toast-container {
+        position: fixed;       /* fixa na tela */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1080;         /* garante que fique acima de outros elementos */
+        width: auto;
+        max-width: 90vw;
+        pointer-events: none;  /* para não interferir em cliques fora do toast */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+  }
+
   </style>
 </head>
 <body class="container py-5">
@@ -98,7 +106,7 @@
 </div>
 
  
-<div class="bg-white rounded-4 shadow-sm p-3 px-md-4 mb-4 d-flex flex-column flex-md-row align-items-stretch gap-3 header">
+<div class="bg-white rounded-4 shadow-sm p-3 px-md-4 mb-4 d-flex flex-column flex-md-row align-items-stretch gap-3">
   <div class="flex-grow-1">
     <div class="input-group">
       <span class="input-group-text bg-white border-end-0">🔍</span>
@@ -179,7 +187,7 @@
       </div>
     `;
     toastContainer.appendChild(toast);
-    setTimeout(() => toast.remove(), 5000); // O toast desaparece após 5 segundos
+    setTimeout(() => toast.remove(), 6000); // O toast desaparece após 5 segundos
   }
 
   /** Ativa/desativa o estado de carregamento do formulário. */
@@ -262,6 +270,7 @@
   
   /** Carrega e renderiza a lista de livros da API. */
   async function carregarLivros() {
+    document.getElementById('bookCount').textContent = ``;
     toggleTableLoading(true);
     livrosTbody.innerHTML = ''; // Limpa a tabela antes de carregar
 
