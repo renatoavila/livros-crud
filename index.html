@@ -187,7 +187,7 @@
       </div>
     `;
     toastContainer.appendChild(toast);
-    setTimeout(() => toast.remove(), 6000); // O toast desaparece após 5 segundos
+    setTimeout(() => toast.remove(), 5000); // O toast desaparece após 5 segundos
   }
 
   /** Ativa/desativa o estado de carregamento do formulário. */
@@ -293,8 +293,8 @@
         document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
         result.data.forEach(livro => {
           const tr = document.createElement("tr");
-          const statusLeituraSttela = livro.sttela && livro.sttela.trim() !== "não" ? "✅" : "❌";
-          const statusLeituraRenato = livro.renato && livro.renato.trim() !== "não" ? "✅" :  "❌";
+          const statusLeituraSttela = livro.sttela && livro.sttela.trim().toLowerCase() !== "não" ? "✅" : "❌";
+          const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "❌";
           const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
 
           tr.innerHTML = `
