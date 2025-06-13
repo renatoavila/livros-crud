@@ -97,14 +97,25 @@
 </div>
 
  
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
-  <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0 w-100 w-md-auto">
-    <input type="text" id="buscaInput" class="form-control form-control-sm" placeholder="Buscar livro..." style="max-width: 250px;" />
-    <button class="btn btn-primary btn-sm" onclick="filtrarTabela()">🔍 Buscar</button>
-  </div>
+<div class="container-fluid px-0 mb-3">
+  <div class="row g-2 align-items-center">
+    <!-- Campo de busca e botões -->
+    <div class="col-12 col-md-auto flex-grow-1">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-white">🔍</span>
+        <input type="text" id="buscaInput" class="form-control" placeholder="Buscar livro..." />
+        <button class="btn btn-primary" onclick="filtrarTabela()">Buscar</button>
+        <button id="limparFiltroBtn" class="btn btn-outline-secondary d-none" onclick="limparFiltro()">Limpar</button>
+      </div>
+    </div>
 
-  <button class="btn btn-success px-4 mt-2 mt-md-0" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
+    <!-- Botão novo livro -->
+    <div class="col-12 col-md-auto text-md-end">
+      <button class="btn btn-success px-4 w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
+    </div>
+  </div>
 </div>
+
 
   <!-- Lista de livros -->
   <div class="card p-4">
@@ -424,6 +435,11 @@
       }
     }
   }
+
+  function limparFiltro() {
+          document.getElementById("buscaInput").value = "";
+          filtrarTabela();
+}
 
   // =================================================================
   // INICIALIZAÇÃO
