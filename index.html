@@ -97,13 +97,13 @@
 </div>
 
  
-<div class="d-flex justify-content-between mb-3 align-items-center">
-  <div class="d-flex gap-2 align-items-center">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-2">
+  <div class="d-flex gap-2 flex-grow-1 flex-md-grow-0 w-100 w-md-auto">
     <input type="text" id="buscaInput" class="form-control form-control-sm" placeholder="Buscar livro..." style="max-width: 250px;" />
     <button class="btn btn-primary btn-sm" onclick="filtrarTabela()">🔍 Buscar</button>
   </div>
 
-  <button class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
+  <button class="btn btn-success px-4 mt-2 mt-md-0" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
 </div>
 
   <!-- Lista de livros -->
@@ -117,7 +117,7 @@
         <tr>
           <th>Título</th>
           <th>Autor</th>
-          <th>Gênero</th>
+          <th class="d-none d-md-table-cell">Gênero</th>
           <th class="text-center">Sttela</th>
           <th class="text-center">Renato</th>
           <th class="text-end">Ações</th>
@@ -276,7 +276,7 @@
           tr.innerHTML = `
             <td>${livro.titulo}</td>
             <td>${livro.autor}</td>
-            <td>${livro.genero}</td>
+            <td class="d-none d-md-table-cell">${genero}</td>
             <td class="text-center">${statusLeituraSttela}</td>
             <td class="text-center">${statusLeituraRenato}</td>
             <td class="text-end">
