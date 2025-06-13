@@ -221,6 +221,16 @@
     modalElement.show();
   }
   
+  // Adicione aqui:
+function formatarDataParaInputDate(isoDate) {
+  if (!isoDate) return "";
+  const date = new Date(isoDate);
+  const ano = date.getFullYear();
+  const mes = String(date.getMonth() + 1).padStart(2, '0');
+  const dia = String(date.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
   /** Preenche o modal com os dados de um livro para edição. */
   function abrirModalEditar(livro) {
     livroForm.reset();
@@ -473,19 +483,7 @@ function filtrarTabela() {
   
   // Carrega os livros assim que a página é aberta
   document.addEventListener('DOMContentLoaded', carregarLivros);
-
-function formatarDataParaInputDate(data) {
-  if (!data) return "";
-  // Se já estiver no formato correto, retorna direto
-  if (/^\d{4}-\d{2}-\d{2}$/.test(data)) return data;
-
-  // Supondo que seja no formato DD/MM/YYYY
-  const partes = data.split('/');
-  if (partes.length === 3) {
-    return `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}`;
-  }
-  return ""; // Caso formato desconhecido
-}
+ 
 </script>
 
 </body>
