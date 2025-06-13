@@ -33,59 +33,66 @@
   <!-- Toast container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="livroModal" tabindex="-1" aria-labelledby="livroModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <form id="livroForm" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="livroModalLabel">📚 Cadastro de Livro</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+<!-- Modal -->
+<div class="modal fade" id="livroModal" tabindex="-1" aria-labelledby="livroModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="livroForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="livroModalLabel">📚 Cadastro de Livro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="livroId">
+
+        <div class="mb-3">
+          <label for="titulo" class="form-label">Título</label>
+          <input type="text" id="titulo" class="form-control form-control-lg" required />
         </div>
-            <div class="modal-body">
-              <input type="hidden" id="livroId">
 
-              <div class="mb-3">
-                <input type="text" id="titulo" class="form-control form-control-lg" placeholder="Título" required />
-              </div>
-
-              <div class="mb-3">
-                <input type="text" id="autor" class="form-control form-control-lg" placeholder="Autor" required />
-              </div>
-
-              <div class="mb-3">
-                <input type="number" id="ano" class="form-control form-control-lg" placeholder="Ano" required />
-              </div>
-
-              <div class="mb-3">
-                <input type="text" id="local" class="form-control form-control-lg" placeholder="Local da Compra" />
-              </div>
-
-              <div class="mb-3">
-                <input type="text" id="data" class="form-control form-control-lg" placeholder="Data da Compra" />
-              </div>
-
-              <div class="mb-3">
-                <input type="text" id="genero" class="form-control form-control-lg" placeholder="Gênero" />
-              </div>
-
-              <div class="form-check form-switch mb-3">
-                <input class="form-check-input" type="checkbox" id="sttela">
-                <label class="form-check-label" for="sttela">Sttela (Sim/Não)</label>
-              </div>
-
-              <div class="form-check form-switch mb-3">
-                <input class="form-check-input" type="checkbox" id="renato">
-                <label class="form-check-label" for="renato">Renato (Sim/Não)</label>
-              </div>
-
-            </div>
-        <div class="modal-footer">
-          <div id="formLoading" class="spinner-border text-primary d-none" role="status"></div>
-          <button type="submit" class="btn btn-primary" id="salvarBtn">Salvar</button>
+        <div class="mb-3">
+          <label for="autor" class="form-label">Autor</label>
+          <input type="text" id="autor" class="form-control form-control-lg" required />
         </div>
-      </form>
-    </div>
+
+        <div class="mb-3">
+          <label for="genero" class="form-label">Gênero</label>
+          <input type="text" id="genero" class="form-control form-control-lg" />
+        </div>
+
+        <div class="mb-3">
+          <label for="ano" class="form-label">Ano</label>
+          <input type="number" id="ano" class="form-control form-control-lg" />
+        </div>
+
+        <div class="mb-3">
+          <label for="local" class="form-label">Local da Compra</label>
+          <input type="text" id="local" class="form-control form-control-lg" />
+        </div>
+
+        <div class="mb-3">
+          <label for="data" class="form-label">Data da Compra</label>
+          <input type="date" id="data" class="form-control form-control-lg" />
+        </div>
+
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="sttela">
+          <label class="form-check-label" for="sttela">Sttela (Sim/Não)</label>
+        </div>
+
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="renato">
+          <label class="form-check-label" for="renato">Renato (Sim/Não)</label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div id="formLoading" class="spinner-border text-primary d-none" role="status"></div>
+        <button type="submit" class="btn btn-primary" id="salvarBtn">💾 Salvar</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- Botão adicionar livro -->
   <div class="d-flex justify-content-end mb-3">
@@ -180,7 +187,7 @@
     document.getElementById("sttela").checked = false;
     document.getElementById("renato").checked = false;
 
-    document.getElementById("livroModalLabel").textContent = "Adicionar Novo Livro";
+    document.getElementById("livroModalLabel").textContent = "📚 Adicionar Novo Livro";
     modalElement.show();
   }
   
@@ -196,7 +203,7 @@
     document.getElementById("genero").value = livro.genero || "";
     document.getElementById("sttela").checked = livro.sttela === "Sim";
     document.getElementById("renato").checked = livro.renato === "Sim";
-    document.getElementById("livroModalLabel").textContent = "Editar Livro";
+    document.getElementById("livroModalLabel").textContent = "📚 Editar Livro";
     modalElement.show();
   }
 
@@ -255,8 +262,10 @@
       } else {
         result.data.forEach(livro => {
           const tr = document.createElement("tr");
-          const statusLeituraSttela = livro.sttela && livro.sttela.trim() !== "" ? "Leu" : "Não leu";
-          const statusLeituraRenato = livro.renato && livro.renato.trim() !== "" ? "Leu" : "Não leu";
+          const statusLeituraSttela = livro.sttela && livro.sttela.trim() !== "" ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-check-circle text-secondary"></i>';
+          const statusLeituraRenato = livro.renato && livro.renato.trim() !== "" ? '<i class="bi bi-check-circle-fill text-success"></i>' :  '<i class="bi bi-check-circle text-secondary"></i>';
+          const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
+
           tr.innerHTML = `
             <td>${livro.titulo}</td>
             <td>${livro.autor}</td>
