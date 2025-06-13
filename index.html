@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Livros</title>
+  <title>Biblioteca</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -99,13 +99,11 @@
  
 <div class="container-fluid px-0 mb-3">
   <div class="row g-2 align-items-center">
-    <!-- Campo de busca e botões -->
-    <div class="col-12 col-md-auto flex-grow-1">
+    <!-- Campo de busca com ícone -->
+    <div class="col-12 col-md flex-grow-1">
       <div class="input-group input-group-sm">
         <span class="input-group-text bg-white">🔍</span>
-        <input type="text" id="buscaInput" class="form-control" placeholder="Buscar livro..." />
-        <button class="btn btn-primary" onclick="filtrarTabela()">Buscar</button>
-        <button id="limparFiltroBtn" class="btn btn-outline-secondary d-none" onclick="limparFiltro()">Limpar</button>
+        <input type="text" id="buscaInput" class="form-control" placeholder="Buscar livro..." oninput="filtrarTabela()" />
       </div>
     </div>
 
