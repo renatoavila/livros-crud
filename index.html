@@ -86,15 +86,16 @@
           <input type="text" id="local" class="form-control form-control-lg" />
         </div>
  
-        <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" id="sttela">
-          <label class="form-check-label" for="sttela">Sttela (Sim/Não)</label>
-        </div>
+    <div class="form-check form-switch mb-4">
+      <input class="form-check-input" type="checkbox" id="sttela" style="width: 2.5em; height: 1.3em;">
+      <label class="form-check-label fs-5" for="sttela">Sttela</label>
+    </div>
 
-        <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" id="renato">
-          <label class="form-check-label" for="renato">Renato (Sim/Não)</label>
-        </div>
+    <div class="form-check form-switch mb-4">
+      <input class="form-check-input" type="checkbox" id="renato" style="width: 2.5em; height: 1.3em;">
+      <label class="form-check-label fs-5" for="renato">Renato</label>
+    </div>
+
       </div>
 
       <div class="modal-footer">
@@ -293,8 +294,8 @@
         document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
         result.data.forEach(livro => {
           const tr = document.createElement("tr");
-          const statusLeituraSttela = livro.sttela && livro.sttela.trim().toLowerCase() !== "não" ? "✅" : "❌";
-          const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "❌";
+          const statusLeituraSttela = livro.sttela && livro.sttela.trim().toLowerCase() !== "não" ? "✅" : "";
+          const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "";
           const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
 
           tr.innerHTML = `
