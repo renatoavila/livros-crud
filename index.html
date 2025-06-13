@@ -97,20 +97,15 @@
 </div>
 
  
-<div class="container-fluid px-0 mb-3">
-  <div class="row g-2 align-items-center">
-    <!-- Campo de busca com ícone -->
-    <div class="col-12 col-md flex-grow-1">
-      <div class="input-group input-group-sm">
-        <span class="input-group-text bg-white">🔍</span>
-        <input type="text" id="buscaInput" class="form-control" placeholder="Buscar livro..." oninput="filtrarTabela()" />
-      </div>
+<div class="bg-white rounded-4 shadow-sm p-3 px-md-4 mb-4 d-flex flex-column flex-md-row align-items-stretch gap-3">
+  <div class="flex-grow-1">
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0">🔍</span>
+      <input type="text" id="buscaInput" class="form-control border-start-0" placeholder="Buscar livro..." oninput="filtrarTabela()" />
     </div>
-
-    <!-- Botão novo livro -->
-    <div class="col-12 col-md-auto text-md-end">
-      <button class="btn btn-success px-4 w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
-    </div>
+  </div>
+  <div class="d-grid d-md-flex justify-content-md-end">
+    <button class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
   </div>
 </div>
 
@@ -132,7 +127,7 @@
           <th class="text-end">Ações</th>
         </tr>
         <tr id="mensagemSemResultados" class="text-center text-muted d-none">
-          <td colspan="6">Nenhum livro encontrado com o termo <strong id="termoBuscado"></strong>.</td>
+          <td colspan="6">Nenhum livro encontrado com o termo: <strong id="termoBuscado"></strong>.</td>
         </tr>
       </thead>
       <tbody id="livrosTable"></tbody>
