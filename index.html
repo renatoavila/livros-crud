@@ -136,7 +136,7 @@
       <thead class="table-light">
         <tr>
           <th>Título</th>
-          <th>Autor</th>
+          <th class="d-none d-md-table-cell">Autor</th>
           <th class="d-none d-md-table-cell">Gênero</th>
           <th class="text-center">Sttela</th>
           <th class="text-center">Renato</th>
@@ -301,7 +301,7 @@
 
           tr.innerHTML = `
             <td>${livro.titulo}</td>
-            <td>${livro.autor}</td>
+            <td class="d-none d-md-table-cell">${livro.autor}</td>
             <td class="d-none d-md-table-cell">${genero}</td>
             <td class="text-center">${statusLeituraSttela}</td>
             <td class="text-center">${statusLeituraRenato}</td>
