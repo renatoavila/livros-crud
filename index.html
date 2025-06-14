@@ -54,7 +54,56 @@
     height: 100% !important;
     border-radius: 8px;
 }
+/* Paginação responsiva */
+@media (max-width: 767.98px) {
+    .pagination-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    #itemsPerPageSelect {
+        width: 100% !important;
+    }
+    
+    .btn-group {
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+    }
+}
 
+/* Melhorias para desktop */
+@media (min-width: 768px) {
+    .pagination-container {
+        min-width: 400px;
+    }
+}
+
+/* Estilo para o seletor */
+#itemsPerPageSelect {
+    border-radius: 20px;
+    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#itemsPerPageSelect:hover {
+    background-color: #e9ecef;
+}
+
+/* Botões de navegação */
+#prevPage, #nextPage {
+    min-width: 90px;
+    transition: all 0.2s;
+}
+
+#prevPage:hover, #nextPage:hover {
+    background-color: #f8f9fa;
+}
   </style>
 </head>
 <body class="container py-5">
@@ -191,6 +240,33 @@
       </thead>
       <tbody id="livrosTable"></tbody>
     </table>
+ 
+<div id="paginas" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
+  <div class="d-flex align-items-center gap-2">
+    <small class="text-muted">Itens por página:</small>
+    <select id="itemsPerPageSelect" class="form-select form-select-sm" style="width: auto;">
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+    </select>
+  </div>
+  
+  <small id="pageInfo" class="text-muted text-center text-md-start">Página 1 de 1</small>
+  
+  <div class="btn-group">
+    <button id="prevPage" class="btn btn-sm btn-outline-secondary" disabled>
+      <span class="d-none d-md-inline">Anterior</span>
+      <span class="d-md-none">◀</span>
+    </button>
+    <button id="nextPage" class="btn btn-sm btn-outline-secondary" disabled>
+      <span class="d-none d-md-inline">Próxima</span>
+      <span class="d-md-none">▶</span>
+    </button>
+  </div>
+</div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -209,9 +285,16 @@
   const formLoading = document.getElementById("formLoading");
   const tableLoading = document.getElementById("tableLoading");
   const table = document.getElementById("table");  
+  const paginas = document.getElementById("paginas");  
   const livrosTbody = document.getElementById("livrosTable");  
   const toastContainer = document.getElementById("toastContainer");
   const modalElement = new bootstrap.Modal(document.getElementById('livroModal'));
+
+  // Variáveis de paginação
+  let currentPage = 1;
+  let itemsPerPage = 10; // Valor padrão
+  let allBooks = [];
+  let filteredBooks = [];
 
   // =================================================================
   // FUNÇÕES DE UI (INTERFACE DO USUÁRIO)
@@ -246,6 +329,7 @@
   function toggleTableLoading(isLoading) {
     tableLoading.classList.toggle("d-none", !isLoading);
     table.classList.toggle("d-none", isLoading);
+    paginas.classList.toggle("d-none", isLoading);
   }
 
   /** Abre o modal para adicionar um novo livro, limpando o formulário. */
@@ -526,7 +610,12 @@ function filtrarTabela() {
   // =================================================================
   
   // Carrega os livros assim que a página é aberta
-  document.addEventListener('DOMContentLoaded', carregarLivros);
+document.addEventListener('DOMContentLoaded', () => {
+    carregarLivros();
+    
+    // Inicializa o seletor com o valor padrão
+    document.getElementById('itemsPerPageSelect').value = itemsPerPage;
+});
  
  let html5QrCode;
 
@@ -657,6 +746,41 @@ function capitalizeComExcecoes(texto) {
         .join(' ');
 }
 
+function updateItemsPerPage() {
+    itemsPerPage = parseInt(document.getElementById('itemsPerPageSelect').value);
+    currentPage = 1; // Reset para a primeira página
+    renderTable();
+}
+
+function renderTable() {
+    livrosTbody.innerHTML = '';
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const booksToShow = filteredBooks.slice(startIndex, endIndex);
+
+    if (booksToShow.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = '<td colspan="6" class="text-center">Nenhum livro encontrado.</td>';
+        livrosTbody.appendChild(tr);
+    } else {
+        booksToShow.forEach(livro => {
+            const tr = document.createElement("tr");
+            // ... (mantenha o restante do código igual)
+        });
+    }
+
+    updatePaginationControls();
+}
+// Adicione isso no final do seu script
+document.getElementById('itemsPerPageSelect').addEventListener('change', updateItemsPerPage);
+document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) goToPage(currentPage - 1);
+});
+document.getElementById('nextPage').addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+    if (currentPage < totalPages) goToPage(currentPage + 1);
+});
 </script>
 
 </body>
