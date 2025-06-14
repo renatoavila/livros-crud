@@ -181,9 +181,9 @@
           <th>Título</th>
           <th class="d-none d-md-table-cell">Autor</th>
           <th class="d-none d-md-table-cell">Gênero</th>
-          <th class="text-center">Sttela</th>
-          <th class="text-center">Renato</th>
-          <th class="text-end">Ações</th>
+          <th class="d-none d-md-table-cell text-center">Sttela</th>
+          <th class="d-none d-md-table-cell text-center">Renato</th>
+          <th class="text-end"></th>
         </tr>
         <tr id="mensagemSemResultados" class="text-center text-muted d-none">
           <td colspan="6">Nenhum livro encontrado com o termo: <strong id="termoBuscado"></strong>.</td>
@@ -357,8 +357,8 @@ function formatarDataParaInputDate(isoDate) {
             <td>${livro.titulo}</td>
             <td class="d-none d-md-table-cell">${livro.autor}</td>
             <td class="d-none d-md-table-cell">${genero}</td>
-            <td class="text-center">${statusLeituraSttela}</td>
-            <td class="text-center">${statusLeituraRenato}</td>
+            <td class="d-none d-md-table-cell text-center">${statusLeituraSttela}</td>
+            <td class="d-none d-md-table+cell text-center">${statusLeituraRenato}</td>
             <td class="text-end">
               <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
               <button class="btn btn-sm remove" title="Excluir">🗑️</button>
