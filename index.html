@@ -582,8 +582,22 @@ function fecharLeitor() {
     } else {
        if (barcodeModalInstance) barcodeModalInstance.hide();
     }
+     pararLeitorCamera();
 }
   
+function pararLeitorCamera() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop()
+            .then(() => {
+                console.log("Leitor de câmera parado com sucesso.");
+            })
+            .catch(err => {
+                // Mesmo que dê erro ao parar, não há muito o que fazer,
+                // mas é bom registrar no console.
+                console.error("Não foi possível parar o leitor de câmera de forma limpa.", err);
+            });
+    }
+}
 async function buscarLivroPorISBN(isbn) {
   toggleFormLoading(true);
 
