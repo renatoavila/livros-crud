@@ -118,8 +118,14 @@
   <div class="d-grid d-md-flex justify-content-md-end">
     <button class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
   </div>
+  <div class="d-grid gap-2 d-md-none mb-3">
+  <button class="btn btn-warning" onclick="abrirLeitorCodigoBarras()">📷 Ler código de barras</button>
 </div>
-
+</div>
+<div id="barcodeScanner" class="d-none mb-3">
+  <div id="reader" style="width:100%;"></div>
+  <button class="btn btn-danger mt-2" onclick="fecharLeitor()">❌ Fechar Leitor</button>
+</div>
 
   <!-- Lista de livros -->
 <div class="card p-4">
@@ -151,6 +157,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
   // =================================================================
   // CONFIGURAÇÃO E VARIÁVEIS GLOBAIS
@@ -484,6 +491,60 @@ function filtrarTabela() {
   // Carrega os livros assim que a página é aberta
   document.addEventListener('DOMContentLoaded', carregarLivros);
  
+ let html5QrcodeScanner;
+
+function abrirLeitorCodigoBarras() {
+  document.getElementById("barcodeScanner").classList.remove("d-none");
+
+  html5QrcodeScanner = new Html5Qrcode("reader");
+
+  const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+  html5QrcodeScanner.start(
+    { facingMode: "environment" },
+    config,
+    onScanSuccess,
+    (error) => { /* Ignorar erros de leitura */ }
+  );
+}
+
+function fecharLeitor() {
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.stop().then(() => {
+      html5QrcodeScanner.clear();
+      document.getElementById("barcodeScanner").classList.add("d-none");
+    });
+  }
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+  if (/^\d{10,13}$/.test(decodedText)) {  // Confirma se é um ISBN provável
+    fecharLeitor();
+    buscarLivroPorISBN(decodedText);
+  }
+}
+
+function buscarLivroPorISBN(isbn) {
+  toggleFormLoading(true);
+  fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`)
+    .then(response => response.json())
+    .then(data => {
+      const livro = data[`ISBN:${isbn}`];
+      if (livro) {
+        document.getElementById("titulo").value = livro.title || "";
+        document.getElementById("autor").value = livro.authors?.map(a => a.name).join(", ") || "";
+        showToast("📚 Livro encontrado e preenchido!", "success");
+      } else {
+        showToast("Nenhum livro encontrado para este ISBN.", "danger");
+      }
+    })
+    .catch(() => {
+      showToast("Erro ao consultar a API pública.", "danger");
+    })
+    .finally(() => {
+      toggleFormLoading(false);
+    });
+}
 </script>
 
 </body>
