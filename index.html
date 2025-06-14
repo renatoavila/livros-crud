@@ -409,60 +409,34 @@ function formatarDataParaInputDate(isoDate) {
   }
   
   /** Carrega e renderiza a lista de livros da API. */
-  async function carregarLivros() {
+async function carregarLivros() {
     document.getElementById('bookCount').textContent = ``;
     toggleTableLoading(true);
-    livrosTbody.innerHTML = ''; // Limpa a tabela antes de carregar
+    livrosTbody.innerHTML = '';
 
     try {
-      const response = await fetch(API_URL); // GET não precisa de configuração especial
-      if (!response.ok) throw new Error("Falha ao carregar os dados.");
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Falha ao carregar os dados.");
 
-      const result = await response.json();
-      if (!result.success || !Array.isArray(result.data)) {
-        throw new Error("A resposta da API não está no formato esperado.");
-      }
+        const result = await response.json();
+        if (!result.success || !Array.isArray(result.data)) {
+            throw new Error("A resposta da API não está no formato esperado.");
+        }
 
-      // Ordena os livros por título antes de renderizar
-      result.data.sort((a, b) => a.titulo.localeCompare(b.titulo));
-
-      if (result.data.length === 0) {
-        livrosTbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum livro cadastrado.</td></tr>';
-      } else {
-        const total = result.data.length;
-        document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
-        result.data.forEach(livro => {
-          const tr = document.createElement("tr");
-          const statusLeituraSttela = livro.sttela && livro.sttela.trim().toLowerCase() !== "não" ? "✅" : "";
-          const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "";
-          const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
-
-          tr.innerHTML = `
-            <td>${livro.titulo}</td>
-            <td class="d-none d-md-table-cell">${livro.autor}</td>
-            <td class="d-none d-md-table-cell">${genero}</td>
-            <td class="d-none d-md-table-cell text-center">${statusLeituraSttela}</td>
-            <td class="d-none d-md-table+cell text-center">${statusLeituraRenato}</td>
-            <td class="text-end">
-              <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
-              <button class="btn btn-sm remove" title="Excluir">🗑️</button>
-            </td>
-          `;
-          // Adiciona os eventos de clique de forma segura
-          tr.querySelector('.edit').addEventListener('click', () => abrirModalEditar(livro));
-          tr.querySelector('.remove').addEventListener('click', () => confirmarExclusao(livro));
-          
-          livrosTbody.appendChild(tr);
-        });
-      }
+        // Armazena todos os livros e os livros filtrados (inicialmente iguais)
+        allBooks = result.data.sort((a, b) => a.titulo.localeCompare(b.titulo));
+        filteredBooks = [...allBooks];
+        
+        updateBookCount();
+        renderTable();
     } catch (error) {
-      console.error("Erro ao carregar livros:", error);
-      showToast("Não foi possível carregar a lista de livros.", "danger");
-      livrosTbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Falha ao carregar dados.</td></tr>';
+        console.error("Erro ao carregar livros:", error);
+        showToast("Não foi possível carregar a lista de livros.", "danger");
+        livrosTbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Falha ao carregar dados.</td></tr>';
     } finally {
-      toggleTableLoading(false);
+        toggleTableLoading(false);
     }
-  }
+}
 
   // =================================================================
   // MANIPULADORES DE EVENTOS (EVENT HANDLERS)
@@ -573,33 +547,35 @@ function formatarDataParaInputDate(isoDate) {
   // =================================================================
 
 function filtrarTabela() {
-  const filtro = document.getElementById('buscaInput').value.toLowerCase();
-  const tabela = document.getElementById('table');
-  const linhas = tabela.tBodies[0].rows;
-
-  let encontrou = false;
-
-  for (let i = 0; i < linhas.length; i++) {
-    const linha = linhas[i];
-    // Pular a linha da mensagem
-    if (linha.id === "mensagemSemResultados") continue;
-
-    const textoLinha = linha.textContent.toLowerCase();
-    const corresponde = textoLinha.includes(filtro);
-
-    linha.style.display = corresponde ? '' : 'none';
-    if (corresponde) encontrou = true;
-  }
-
-  const mensagem = document.getElementById("mensagemSemResultados");
-  const termo = document.getElementById("termoBuscado");
-
-  if (!encontrou && filtro.trim() !== "") {
-    termo.innerHTML = filtro;
-    mensagem.classList.remove("d-none");
-  } else {
-    mensagem.classList.add("d-none");
-  }
+    const filtro = document.getElementById('buscaInput').value.toLowerCase();
+    
+    if (filtro.trim() === "") {
+        filteredBooks = [...allBooks];
+    } else {
+        filteredBooks = allBooks.filter(livro => {
+            return (
+                livro.titulo.toLowerCase().includes(filtro) ||
+                (livro.autor && livro.autor.toLowerCase().includes(filtro)) ||
+                (livro.genero && livro.genero.toLowerCase().includes(filtro))
+            );
+        });
+    }
+    
+    // Reset para a primeira página após filtrar
+    currentPage = 1;
+    updateBookCount();
+    renderTable();
+    
+    // Mostra mensagem se não encontrar resultados
+    const mensagem = document.getElementById("mensagemSemResultados");
+    const termo = document.getElementById("termoBuscado");
+    
+    if (filteredBooks.length === 0 && filtro.trim() !== "") {
+        termo.textContent = filtro;
+        mensagem.classList.remove("d-none");
+    } else {
+        mensagem.classList.add("d-none");
+    }
 }
 
 
@@ -615,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inicializa o seletor com o valor padrão
     document.getElementById('itemsPerPageSelect').value = itemsPerPage;
+    document.getElementById('itemsPerPageSelect').addEventListener('change', updateItemsPerPage);
 });
  
  let html5QrCode;
@@ -745,6 +722,23 @@ function capitalizeComExcecoes(texto) {
         })
         .join(' ');
 }
+function goToPage(page) {
+    currentPage = page;
+    renderTable();
+}
+
+function updatePaginationControls() {
+    const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+    document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+    
+    document.getElementById('prevPage').disabled = currentPage <= 1;
+    document.getElementById('nextPage').disabled = currentPage >= totalPages;
+}
+
+function updateBookCount() {
+    const total = filteredBooks.length;
+    document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
+}
 
 function updateItemsPerPage() {
     itemsPerPage = parseInt(document.getElementById('itemsPerPageSelect').value);
@@ -766,7 +760,26 @@ function renderTable() {
     } else {
         booksToShow.forEach(livro => {
             const tr = document.createElement("tr");
-            // ... (mantenha o restante do código igual)
+            const statusLeituraSttela = livro.sttela && livro.sttela.trim().toLowerCase() !== "não" ? "✅" : "";
+            const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "";
+            const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
+
+            tr.innerHTML = `
+                <td>${livro.titulo}</td>
+                <td class="d-none d-md-table-cell">${livro.autor}</td>
+                <td class="d-none d-md-table-cell">${genero}</td>
+                <td class="d-none d-md-table-cell text-center">${statusLeituraSttela}</td>
+                <td class="d-none d-md-table-cell text-center">${statusLeituraRenato}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
+                    <button class="btn btn-sm remove" title="Excluir">🗑️</button>
+                </td>
+            `;
+            
+            tr.querySelector('.edit').addEventListener('click', () => abrirModalEditar(livro));
+            tr.querySelector('.remove').addEventListener('click', () => confirmarExclusao(livro));
+            
+            livrosTbody.appendChild(tr);
         });
     }
 
