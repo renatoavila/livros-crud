@@ -524,28 +524,49 @@ function onScanSuccess(decodedText, decodedResult) {
   }
 }
 
-function buscarLivroPorISBN(isbn) {
+async function buscarLivroPorISBN(isbn) {
   toggleFormLoading(true);
-  fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`)
-    .then(response => response.json())
-    .then(data => {
-      const livro = data[`ISBN:${isbn}`];
-      if (livro) {
-        livroForm.reset();
-        document.getElementById("titulo").value = livro.title || "";
-        document.getElementById("autor").value = livro.authors?.map(a => a.name).join(", ") || "";
-         modalElement.show(); 
-      } else {
-        showToast("Nenhum livro encontrado para este ISBN.", "danger");
-      }
-    })
-    .catch(() => {
-      showToast("Erro ao consultar a API pública.", "danger");
-    })
-    .finally(() => {
-      toggleFormLoading(false);
-    });
+
+  // Primeiro: BrasilAPI
+  let data;
+  try {
+    const resp = await fetch(`https://brasilapi.com.br/api/isbn/v1/${isbn}?providers=open-library|mercado-editorial`);
+    if (resp.ok) {
+      data = await resp.json();
+    }
+  } catch {}
+
+  if (data?.title) {
+    preencherLivro(data.title, data.authors, data.year);
+    showToast("Livro encontrado (BrasilAPI)!", "success");
+  } else {
+    // Fallback: Google Books
+    try {
+      const resp2 = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+      const jb = await resp2.json();
+      const info = jb.items?.[0]?.volumeInfo;
+      if (info) {
+        const tituloCompleto = info.subtitle
+                              ? `${info.title}: ${info.subtitle}`
+                              : info.title;
+
+        preencherLivro(tituloCompleto, info.authors, info.publishedDate);
+        showToast("Livro encontrado (Google Books)!", "success");
+      } else showToast("Livro não encontrado.", "danger");
+    } catch {
+      showToast("Erro ao consultar APIs.", "danger");
+    }
+  }
+
+  toggleFormLoading(false);
 }
+
+function preencherLivro(title, authors,publishedDate) {
+  document.getElementById("titulo").value = title || "";
+  document.getElementById("autor").value = authors?.join(", ") || "";
+  document.getElementById("ano").value = publishedDate || "";
+}
+
 </script>
 
 </body>
