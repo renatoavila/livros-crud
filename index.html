@@ -506,65 +506,62 @@ function filtrarTabela() {
  
  let html5QrCode;
 
+// Substitua sua função abrirLeitorCodigoBarras por esta:
 function abrirLeitorCodigoBarras() {
-  const barcodeModal = new bootstrap.Modal(document.getElementById('barcodeModal'));
-  barcodeModal.show();
+    const barcodeModal = new bootstrap.Modal(document.getElementById('barcodeModal'));
+    barcodeModal.show();
 
-  // Iniciar o leitor somente após o modal abrir completamente
-  setTimeout(() => {
-    const qrCodeRegionId = "reader";
-    html5QrCode = new Html5Qrcode(qrCodeRegionId);
+    // Aguarda o modal estar visível para iniciar a câmera
+    document.getElementById('barcodeModal').addEventListener('shown.bs.modal', () => {
+        const qrCodeRegionId = "reader";
+        html5QrCode = new Html5Qrcode(qrCodeRegionId);
 
-    const config = { fps: 10, qrbox: 250 };
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-    html5QrCode.start(
-      { facingMode: "environment" },
-      config,
-      (decodedText, decodedResult) => {
-        showToast(`Código lido: ${decodedText}`, "success");
-        fecharLeitor();
-        // Você pode preencher um campo do formulário, por exemplo:
-        document.getElementById("titulo").value = decodedText;
-      },
-      (errorMessage) => {
-        // Ignora erros de leitura contínuos
-      }
-    ).catch(err => {
-      console.error(`Erro ao iniciar o leitor: ${err}`);
-      showToast("Erro ao acessar a câmera", "danger");
-    });
-  }, 500);  // Pequeno delay para garantir que o modal já abriu
+        html5QrCode.start(
+            { facingMode: "environment" }, // Usa a câmera traseira
+            config,
+            (decodedText, decodedResult) => {
+                // SUCESSO NA LEITURA
+                fecharLeitor();                
+                if (/^\d{10,13}$/.test(decodedText)) {
+                    buscarLivroPorISBN(decodedText);
+                } else {
+                    showToast("O código lido não parece ser um ISBN válido.", "danger");
+                }
+            },
+            (errorMessage) => {
+                // Erros de leitura podem ser ignorados, pois acontecem constantemente.
+            }
+        ).catch(err => {
+            console.error(`Erro ao iniciar o leitor de código de barras: ${err}`);
+            showToast("Não foi possível acessar a câmera. Verifique as permissões.", "danger");
+            const barcodeModalInstance = bootstrap.Modal.getInstance(document.getElementById('barcodeModal'));
+            if(barcodeModalInstance) barcodeModalInstance.hide();
+        });
+    }, { once: true }); // O evento só precisa ser escutado uma vez
 }
 
 function fecharLeitor() {
-  if (html5QrCode) {
-    html5QrCode.stop().then(() => {
-      html5QrCode.clear();
-      html5QrCode = null;
-    }).catch(err => {
-      console.error("Erro ao parar o leitor: ", err);
-    });
-  }
-  const barcodeModalEl = document.getElementById('barcodeModal');
-  const barcodeModal = bootstrap.Modal.getInstance(barcodeModalEl);
-  if (barcodeModal) barcodeModal.hide();
-}
+    const barcodeModalEl = document.getElementById('barcodeModal');
+    const barcodeModalInstance = bootstrap.Modal.getInstance(barcodeModalEl);
 
-  if (html5QrcodeScanner) {
-    html5QrcodeScanner.stop().then(() => {
-      html5QrcodeScanner.clear();
-      document.getElementById("barcodeScanner").classList.add("d-none");
-    });
-  }
+    if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            html5QrCode = null; // Limpa a variável
+            if (barcodeModalInstance) barcodeModalInstance.hide();
+        }).catch(err => {
+            console.error("Erro ao parar o leitor: ", err);
+            if (barcodeModalInstance) barcodeModalInstance.hide(); // Força o fechamento mesmo com erro
+        });
+    } else {
+       if (barcodeModalInstance) barcodeModalInstance.hide();
+    }
 }
-
-function onScanSuccess(decodedText, decodedResult) {
-  if (/^\d{10,13}$/.test(decodedText)) {  // Confirma se é um ISBN provável
-    fecharLeitor();
-    buscarLivroPorISBN(decodedText);
-  }
-}
-
+ 
+// Com a correção acima, a função onScanSuccess se torna desnecessária. Você pode removê-la.
+// function onScanSuccess(decodedText, decodedResult) { ... } // PODE REMOVER
 async function buscarLivroPorISBN(isbn) {
   toggleFormLoading(true);
 
