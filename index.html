@@ -634,10 +634,27 @@ async function buscarLivroPorISBN(isbn) {
 
 function preencherLivro(title, authors,publishedDate) {
   livroForm.reset();
-  document.getElementById("titulo").value = title || "";
-  document.getElementById("autor").value = authors?.join(", ") || "";
+  document.getElementById("titulo").value =  title ? capitalizeComExcecoes(title) : "";
+  document.getElementById("autor").value = authors
+        ? authors.map(nome => capitalizeComExcecoes(nome)).join(" | ")
+        : "";
   document.getElementById("ano").value = publishedDate || "";
   modalElement.show();
+}
+
+function capitalizeComExcecoes(texto) {
+    const palavrasPequenas = ["a", "o", "as", "os", "de", "do", "da", "dos", "das", "e", "em", "no", "na", "nos", "nas", "por", "com", "para", "uma", "um", "uns", "umas"];
+
+    return texto
+        .toLowerCase()
+        .split(' ')
+        .map((palavra, index) => {
+            if (index === 0 || !palavrasPequenas.includes(palavra)) {
+                return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+            }
+            return palavra;
+        })
+        .join(' ');
 }
 
 </script>
