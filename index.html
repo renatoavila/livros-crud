@@ -559,9 +559,7 @@ function fecharLeitor() {
        if (barcodeModalInstance) barcodeModalInstance.hide();
     }
 }
- 
-// Com a correção acima, a função onScanSuccess se torna desnecessária. Você pode removê-la.
-// function onScanSuccess(decodedText, decodedResult) { ... } // PODE REMOVER
+  
 async function buscarLivroPorISBN(isbn) {
   toggleFormLoading(true);
 
