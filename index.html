@@ -107,6 +107,23 @@
   </div>
 </div>
 
+<!-- Modal para Leitura de Código de Barras -->
+<div class="modal fade" id="barcodeModal" tabindex="-1" aria-labelledby="barcodeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="barcodeModalLabel">📷 Leitor de Código de Barras</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="reader" style="width:100%;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" onclick="fecharLeitor()">❌ Fechar Leitor</button>
+      </div>
+    </div>
+  </div>
+</div>
  
 <div class="bg-white rounded-4 shadow-sm p-3 px-md-4 mb-4 d-flex flex-column flex-md-row align-items-stretch gap-3">
   <div class="flex-grow-1">
@@ -122,12 +139,8 @@
   <button class="btn btn-warning" onclick="abrirLeitorCodigoBarras()">📷 Ler código de barras</button>
 </div>
 </div>
-<div id="barcodeScanner" class="d-none mb-3">
-  <div id="reader" style="width:100%;"></div>
-  <button class="btn btn-danger mt-2" onclick="fecharLeitor()">❌ Fechar Leitor</button>
-</div>
 
-  <!-- Lista de livros -->
+<!-- Lista de livros -->
 <div class="card p-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="mb-0">📖 Lista de Livros</h5>
@@ -491,24 +504,52 @@ function filtrarTabela() {
   // Carrega os livros assim que a página é aberta
   document.addEventListener('DOMContentLoaded', carregarLivros);
  
- let html5QrcodeScanner;
+ let html5QrCode;
 
 function abrirLeitorCodigoBarras() {
-  document.getElementById("barcodeScanner").classList.remove("d-none");
+  const barcodeModal = new bootstrap.Modal(document.getElementById('barcodeModal'));
+  barcodeModal.show();
 
-  html5QrcodeScanner = new Html5Qrcode("reader");
+  // Iniciar o leitor somente após o modal abrir completamente
+  setTimeout(() => {
+    const qrCodeRegionId = "reader";
+    html5QrCode = new Html5Qrcode(qrCodeRegionId);
 
-  const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+    const config = { fps: 10, qrbox: 250 };
 
-  html5QrcodeScanner.start(
-    { facingMode: "environment" },
-    config,
-    onScanSuccess,
-    (error) => { /* Ignorar erros de leitura */ }
-  );
+    html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      (decodedText, decodedResult) => {
+        showToast(`Código lido: ${decodedText}`, "success");
+        fecharLeitor();
+        // Você pode preencher um campo do formulário, por exemplo:
+        document.getElementById("titulo").value = decodedText;
+      },
+      (errorMessage) => {
+        // Ignora erros de leitura contínuos
+      }
+    ).catch(err => {
+      console.error(`Erro ao iniciar o leitor: ${err}`);
+      showToast("Erro ao acessar a câmera", "danger");
+    });
+  }, 500);  // Pequeno delay para garantir que o modal já abriu
 }
 
 function fecharLeitor() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      html5QrCode = null;
+    }).catch(err => {
+      console.error("Erro ao parar o leitor: ", err);
+    });
+  }
+  const barcodeModalEl = document.getElementById('barcodeModal');
+  const barcodeModal = bootstrap.Modal.getInstance(barcodeModalEl);
+  if (barcodeModal) barcodeModal.hide();
+}
+
   if (html5QrcodeScanner) {
     html5QrcodeScanner.stop().then(() => {
       html5QrcodeScanner.clear();
@@ -537,8 +578,7 @@ async function buscarLivroPorISBN(isbn) {
   } catch {}
 
   if (data?.title) {
-    preencherLivro(data.title, data.authors, data.year);
-    showToast("Livro encontrado (BrasilAPI)!", "success");
+    preencherLivro(data.title, data.authors, data.year); 
   } else {
     // Fallback: Google Books
     try {
@@ -550,8 +590,7 @@ async function buscarLivroPorISBN(isbn) {
                               ? `${info.title}: ${info.subtitle}`
                               : info.title;
 
-        preencherLivro(tituloCompleto, info.authors, info.publishedDate);
-        showToast("Livro encontrado (Google Books)!", "success");
+        preencherLivro(tituloCompleto, info.authors, info.publishedDate); 
       } else showToast("Livro não encontrado.", "danger");
     } catch {
       showToast("Erro ao consultar APIs.", "danger");
@@ -562,9 +601,11 @@ async function buscarLivroPorISBN(isbn) {
 }
 
 function preencherLivro(title, authors,publishedDate) {
+  livroForm.reset();
   document.getElementById("titulo").value = title || "";
   document.getElementById("autor").value = authors?.join(", ") || "";
   document.getElementById("ano").value = publishedDate || "";
+  modalElement.show();
 }
 
 </script>
