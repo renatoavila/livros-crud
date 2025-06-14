@@ -135,9 +135,13 @@
         <h5 class="modal-title" id="barcodeModalLabel">📷 Leitor de Código de Barras</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-      <div class="modal-body">
-         <div id="reader" style="width:100%;"></div>
-      </div>
+<div class="modal-body">
+    <div id="reader">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Carregando câmera...</span>
+        </div>
+    </div>
+</div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" onclick="fecharLeitor()">❌ Fechar Leitor</button>
       </div>
@@ -155,7 +159,7 @@
   <div class="d-grid d-md-flex justify-content-md-end">
     <button class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#livroModal" onclick="abrirModalNovoLivro()">+ Novo Livro</button>
   </div>
-  <div class="d-grid gap-2 d-md-none mb-3">
+<div class="d-grid d-md-none"> 
   <button class="btn btn-warning" onclick="abrirLeitorCodigoBarras()">📷 Ler código de barras</button>
 </div>
 </div>
