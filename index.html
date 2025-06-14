@@ -531,9 +531,10 @@ function buscarLivroPorISBN(isbn) {
     .then(data => {
       const livro = data[`ISBN:${isbn}`];
       if (livro) {
+        livroForm.reset();
         document.getElementById("titulo").value = livro.title || "";
         document.getElementById("autor").value = livro.authors?.map(a => a.name).join(", ") || "";
-        showToast("📚 Livro encontrado e preenchido!", "success");
+         modalElement.show(); 
       } else {
         showToast("Nenhum livro encontrado para este ISBN.", "danger");
       }
