@@ -478,11 +478,15 @@ function renderTable() {
         booksToShow.forEach(livro => {
             const tr = document.createElement("tr");
             const genero = livro.genero && livro.genero.trim() !== "" ? livro.genero : "Não informado";
+            const statusLeituraSttela = livro.sttela && livro.sttela.trim().toLowerCase() !== "não" ? "✅" : "";
+            const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "";
 
             tr.innerHTML = `
                  <td>${livro.titulo}</td>
                  <td class="d-none d-md-table-cell">${livro.autor}</td>
                  <td class="d-none d-md-table-cell">${genero}</td>
+                <td class="d-none d-md-table-cell text-center">${statusLeituraSttela}</td>
+                <td class="d-none d-md-table-cell text-center">${statusLeituraRenato}</td>
                  <td class="text-end">
                      <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
                      <button class="btn btn-sm remove" title="Excluir">🗑️</button>
