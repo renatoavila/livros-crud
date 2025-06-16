@@ -138,10 +138,11 @@
             <tbody id="livrosTable"></tbody>
         </table>
 
-        <div id="paginas" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <small class="text-muted">Itens por página:</small>
-                <select id="itemsPerPageSelect" class="form-select form-select-sm" style="width: auto;">
+        <div id="paginas" class="d-flex flex-wrap justify-content-center justify-content-md-between align-items-center mt-3 gap-2 px-2">
+            <!-- Seletor de itens por página - agora fica em linha própria no mobile -->
+            <div class="order-1 order-md-0 d-flex align-items-center gap-2 w-100 w-md-auto justify-content-center">
+                <small class="text-muted d-none d-sm-inline">Itens por página:</small>
+                <select id="itemsPerPageSelect" class="form-select form-select-sm" style="width: auto; max-width: 120px;">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -151,16 +152,18 @@
                 </select>
             </div>
 
-            <small id="pageInfo" class="text-muted text-center text-md-start">Página 1 de 1</small>
+            <!-- Info da página - centralizado e mais compacto no mobile -->
+            <small id="pageInfo" class="order-0 order-md-1 text-muted text-center mx-2">Pág. 1/1</small>
 
-            <div class="btn-group">
-                <button id="prevPage" class="btn btn-sm btn-outline-secondary" disabled>
-                    <span class="d-none d-md-inline">Anterior</span>
-                    <span class="d-md-none">◀</span>
+            <!-- Botões de navegação - melhor espaçamento no mobile -->
+            <div class="order-2 btn-group flex-nowrap">
+                <button id="prevPage" class="btn btn-sm btn-outline-secondary px-2 px-sm-3" disabled>
+                    <span class="d-none d-sm-inline">Anterior</span>
+                    <span class="d-sm-none">◀</span>
                 </button>
-                <button id="nextPage" class="btn btn-sm btn-outline-secondary" disabled>
-                    <span class="d-none d-md-inline">Próxima</span>
-                    <span class="d-md-none">▶</span>
+                <button id="nextPage" class="btn btn-sm btn-outline-secondary px-2 px-sm-3" disabled>
+                    <span class="d-none d-sm-inline">Próxima</span>
+                    <span class="d-sm-none">▶</span>
                 </button>
             </div>
         </div>
