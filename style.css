@@ -127,7 +127,7 @@ html, body {
     height: 300px;
 }
 
-#livrosTable {
+#listaDeLivros {
     min-height: 400px; /* Altura aproximada para 10 linhas */
     display: block;
 }
