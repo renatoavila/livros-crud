@@ -134,8 +134,7 @@ async function postApi(payload) {
 }
 
 /** Carrega e renderiza a lista de livros da API. */
-async function carregarLivros() {
-    document.getElementById('bookCount').textContent = ``;
+async function carregarLivros() { 
     toggleTableLoading(true);
     livrosTbody.innerHTML = '';
 
@@ -152,7 +151,6 @@ async function carregarLivros() {
         allBooks = result.data.sort((a, b) => a.titulo.localeCompare(b.titulo));
         filteredBooks = [...allBooks];
 
-        updateBookCount();
         renderTable();
     } catch (error) {
         console.error("Erro ao carregar livros:", error);
@@ -291,7 +289,6 @@ function filtrarTabela() {
 
     // Reset para a primeira página após filtrar
     currentPage = 1;
-    updateBookCount();
     renderTable();
 
     // Mostra mensagem se não encontrar resultados
@@ -459,12 +456,7 @@ function updatePaginationControls() {
     document.getElementById('prevPage').disabled = currentPage <= 1;
     document.getElementById('nextPage').disabled = currentPage >= totalPages;
 }
-
-function updateBookCount() {
-    const total = filteredBooks.length;
-    document.getElementById('bookCount').textContent = `Total de livros: ${total}`;
-}
-
+ 
 function updateItemsPerPage() {
     itemsPerPage = parseInt(document.getElementById('itemsPerPageSelect').value);
     currentPage = 1; // Reset para a primeira página
