@@ -552,7 +552,7 @@ function calculateStats() {
         renatoRead,
         bothRead,
         unread,
-        genreCount        
+        genreCount,        
         readGenreCount,
         authorCount,
         readBooksCount: readBooks.length
