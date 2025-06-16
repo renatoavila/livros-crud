@@ -1,0 +1,93 @@
+html, body {
+    background-color: #f4f6f9;
+}
+
+.card {
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.btn {
+    border-radius: 999px;
+}
+
+.toast-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1080;
+    width: auto;
+    max-width: 90vw;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#reader {
+    aspect-ratio: 1 / 1;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    #reader video {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 8px;
+    }
+
+@media (max-width: 767.98px) {
+    .pagination-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #itemsPerPageSelect {
+        width: 100% !important;
+    }
+
+    .btn-group {
+        width: 100%;
+    }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+}
+
+@media (min-width: 768px) {
+    .pagination-container {
+        min-width: 400px;
+    }
+}
+
+#itemsPerPageSelect {
+    border-radius: 20px;
+    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    #itemsPerPageSelect:hover {
+        background-color: #e9ecef;
+    }
+
+#prevPage, #nextPage {
+    min-width: 90px;
+    transition: all 0.2s;
+}
+
+    #prevPage:hover, #nextPage:hover {
+        background-color: #f8f9fa;
+    }
