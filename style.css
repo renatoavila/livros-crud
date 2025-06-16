@@ -128,6 +128,6 @@ html, body {
 }
 
 #listaDeLivros {
-    min-height: 400px; /* Altura aproximada para 10 linhas */
+    min-height: 500px; /* Altura aproximada para 10 linhas */
     display: block;
 }
