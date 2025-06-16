@@ -2,7 +2,7 @@
 // CONFIGURAÇÃO E VARIÁVEIS GLOBAIS
 // =================================================================
 
- 
+
 const API_URL = 'https://script.google.com/macros/s/AKfycbzG9uM4nyt992rv5jF8ZAkaveLrc1TnCL4I1LHkAqfIomdAkcQVZAS7d9ya8uyd7Z-g/exec';
 
 // Seletores do DOM
@@ -74,7 +74,7 @@ function abrirModalNovoLivro() {
     document.getElementById("livroModalLabel").textContent = "📚 Adicionar Novo Livro";
     modalElement.show();
 }
- 
+
 function formatarDataParaInputDate(isoDate) {
     if (!isoDate) return "";
     const date = new Date(isoDate);
@@ -134,7 +134,7 @@ async function postApi(payload) {
 }
 
 /** Carrega e renderiza a lista de livros da API. */
-async function carregarLivros() { 
+async function carregarLivros() {
     toggleTableLoading(true);
     livrosTbody.innerHTML = '';
 
@@ -159,9 +159,9 @@ async function carregarLivros() {
     } finally {
         toggleTableLoading(false);
     }
-     const stats = calculateStats();
-            renderStatsCards(stats);
-            renderCharts(stats);
+    const stats = calculateStats();
+    renderStatsCards(stats);
+    renderCharts(stats);
 }
 
 // =================================================================
@@ -456,7 +456,7 @@ function updatePaginationControls() {
     document.getElementById('prevPage').disabled = currentPage <= 1;
     document.getElementById('nextPage').disabled = currentPage >= totalPages;
 }
- 
+
 function updateItemsPerPage() {
     itemsPerPage = parseInt(document.getElementById('itemsPerPageSelect').value);
     currentPage = 1; // Reset para a primeira página
@@ -509,75 +509,75 @@ document.getElementById('nextPage').addEventListener('click', () => {
 });
 
 
-  function calculateStats() {
-            const books = allBooks;
-            const totalBooks = books.length;
-            
-            // Livros lidos por Sttela e Renato
-            const sttelaRead = books.filter(book => book.sttela === "Sim").length;
-            const renatoRead = books.filter(book => book.renato === "Sim").length;
-            const bothRead = books.filter(book => book.sttela === "Sim" && book.renato === "Sim").length;
-            const unread = books.filter(book => book.sttela === "Não" && book.renato === "Não").length;
-            
-            // Contagem por gênero
-            const genreCount = {};
-            books.forEach(book => {
-                const genre = book.genero || "Desconhecido";
-                genreCount[genre] = (genreCount[genre] || 0) + 1;
-            });
-            
-            return {
-                totalBooks,
-                sttelaRead,
-                renatoRead,
-                bothRead,
-                unread,
-                genreCount
-            };
-        }
+function calculateStats() {
+    const books = allBooks;
+    const totalBooks = books.length;
 
-        // Função para renderizar os cards de estatísticas
-        function renderStatsCards(stats) {
-            const container = document.getElementById('stats-container');
-         const cards = [
-    {
-        icon: "📚",
-        value: stats.totalBooks,
-        label: "Total de Livros",
-        bg: "bg-primary bg-opacity-10",
-        text: "text-primary"
-    },
-    {
-        icon: "👩🏼",  // Mulher com tom de pele médio-claro
-        value: stats.sttelaRead,
-        label: "Lidos pela Sttela",
-        bg: "bg-success bg-opacity-10",
-        text: "text-success"
-    },
-    {
-        icon: "👨🏼",  // Homem com tom de pele médio-claro
-        value: stats.renatoRead,
-        label: "Lidos pelo Renato",
-        bg: "bg-info bg-opacity-10",
-        text: "text-info"
-    },
-    {
-        icon: "👫🏽",  // Casal com tom de pele médio-claro
-        value: stats.bothRead,
-        label: "Lidos por ambos",
-        bg: "bg-warning bg-opacity-10",
-        text: "text-warning"
-    },
-    {
-        icon: "🕒",
-        value: stats.unread,
-        label: "Aguardando leitura",
-        bg: "bg-secondary bg-opacity-10",
-        text: "text-secondary"
-    }
-];
-            
-            container.innerHTML = cards.map(card => `
+    // Livros lidos por Sttela e Renato
+    const sttelaRead = books.filter(book => book.sttela === "Sim").length;
+    const renatoRead = books.filter(book => book.renato === "Sim").length;
+    const bothRead = books.filter(book => book.sttela === "Sim" && book.renato === "Sim").length;
+    const unread = books.filter(book => book.sttela === "Não" && book.renato === "Não").length;
+
+    // Contagem por gênero
+    const genreCount = {};
+    books.forEach(book => {
+        const genre = book.genero || "Desconhecido";
+        genreCount[genre] = (genreCount[genre] || 0) + 1;
+    });
+
+    return {
+        totalBooks,
+        sttelaRead,
+        renatoRead,
+        bothRead,
+        unread,
+        genreCount
+    };
+}
+
+// Função para renderizar os cards de estatísticas
+function renderStatsCards(stats) {
+    const container = document.getElementById('stats-container');
+    const cards = [
+        {
+            icon: "📚",
+            value: stats.totalBooks,
+            label: "Total de Livros",
+            bg: "bg-primary bg-opacity-10",
+            text: "text-primary"
+        },
+        {
+            icon: "👩🏼",  // Mulher com tom de pele médio-claro
+            value: stats.sttelaRead,
+            label: "Lidos pela Sttela",
+            bg: "bg-success bg-opacity-10",
+            text: "text-success"
+        },
+        {
+            icon: "👨🏼",  // Homem com tom de pele médio-claro
+            value: stats.renatoRead,
+            label: "Lidos pelo Renato",
+            bg: "bg-info bg-opacity-10",
+            text: "text-info"
+        },
+        {
+            icon: "👫🏽",  // Casal com tom de pele médio-claro
+            value: stats.bothRead,
+            label: "Lidos por ambos",
+            bg: "bg-warning bg-opacity-10",
+            text: "text-warning"
+        },
+        {
+            icon: "🕒",
+            value: stats.unread,
+            label: "Aguardando leitura",
+            bg: "bg-secondary bg-opacity-10",
+            text: "text-secondary"
+        }
+    ];
+
+    container.innerHTML = cards.map(card => `
                 <div class="col-md-4 col-6">
                     <div class="stat-card p-4 ${card.bg} ${card.text}">
                         <div class="stat-icon">${card.icon}</div>
@@ -586,92 +586,88 @@ document.getElementById('nextPage').addEventListener('click', () => {
                     </div>
                 </div>
             `).join('');
-        }
+}
 
-        // Função para renderizar os gráficos
-        function renderCharts(stats) {
-            // Gráfico de leitura por pessoa
-            const readingCtx = document.getElementById('readingChart').getContext('2d');
-            new Chart(readingCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Sttela', 'Renato', 'Ambos', 'Não lidos'],
-                    datasets: [{
-                        label: 'Livros lidos',
-                        data: [stats.sttelaRead, stats.renatoRead, stats.bothRead, stats.unread],
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+// Função para renderizar os gráficos
+function renderCharts(stats) {
+    // Gráfico de leitura por pessoa
+    const readingCtx = document.getElementById('readingChart').getContext('2d');
+    new Chart(readingCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Sttela', 'Renato', 'Ambos', 'Não lidos'],
+            datasets: [{
+                label: 'Livros lidos',
+                data: [stats.sttelaRead, stats.renatoRead, stats.bothRead, stats.unread],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
-            
-            // Gráfico de gêneros
-            const genres = Object.keys(stats.genreCount);
-            const genreData = Object.values(stats.genreCount);
-            
-            const genreCtx = document.getElementById('genreChart').getContext('2d');
-            new Chart(genreCtx, {
-                type: 'pie',
-                data: {
-                    labels: genres,
-                    datasets: [{
-                        data: genreData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.7)',
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(153, 102, 255, 0.7)',
-                            'rgba(255, 159, 64, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right'
-                        }
-                    }
-                }
-            });
+            }
         }
+    });
 
-        // Quando o DOM estiver carregado
+    // Gráfico de gêneros
+    const genres = Object.keys(stats.genreCount);
+    const genreData = Object.values(stats.genreCount);
+
+    const genreCtx = document.getElementById('genreChart').getContext('2d');
+    new Chart(genreCtx, {
+        type: 'pie',
+        data: {
+            labels: genres,
+            datasets: [{
+                data: genreData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+}
  
-
-
-        // Carrega os livros assim que a página é aberta
+// Carrega os livros assim que a página é aberta
 
 document.addEventListener('DOMContentLoaded', () => {
     carregarLivros();
