@@ -521,7 +521,8 @@ function calculateStats() {
     const sttelaRead = books.filter(book => book.sttela === "Sim").length;
     const renatoRead = books.filter(book => book.renato === "Sim").length;
     const bothRead = books.filter(book => book.sttela === "Sim" && book.renato === "Sim").length;
-    const unread = books.filter(book => book.sttela === "Não" && book.renato === "Não").length;
+    const unread = books.filter(book => book.sttela === "Não" && book.renato === "Não").length;    
+    const readBooks = books.filter(book => book.sttela === "Sim" || book.renato === "Sim");
 
     // Contagem por gênero
     const genreCount = {};
@@ -530,13 +531,31 @@ function calculateStats() {
         genreCount[genre] = (genreCount[genre] || 0) + 1;
     });
 
+    const readGenreCount = {};
+    readBooks.forEach(book => {
+        const genre = book.genero || "Desconhecido";
+        readGenreCount[genre] = (readGenreCount[genre] || 0) + 1;
+    });
+
+    const authorCount = {};
+    readBooks.forEach(book => {
+        // Considera todos os autores (para casos de livros com múltiplos autores)
+        const authors = book.autor.split('|').map(a => a.trim());
+        authors.forEach(author => {
+            authorCount[author] = (authorCount[author] || 0) + 1;
+        });
+    });
+
     return {
         totalBooks,
         sttelaRead,
         renatoRead,
         bothRead,
         unread,
-        genreCount
+        genreCount        
+        readGenreCount,
+        authorCount,
+        readBooksCount: readBooks.length
     };
 }
 
@@ -591,12 +610,112 @@ function renderStatsCards(stats) {
                 </div>
             `).join('');
 }
+function renderMostReadGenresChart(readGenreCount) {
+    // Ordenar gêneros por quantidade (do maior para o menor)
+    const sortedGenres = Object.entries(readGenreCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6); // Pegar os top 6 gêneros
+    
+    const ctx = document.getElementById('mostReadGenresChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedGenres.map(g => g[0]),
+            datasets: [{
+                label: 'Livros Lidos',
+                data: sortedGenres.map(g => g[1]),
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Gráfico horizontal
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Gêneros Mais Lidos',
+                    font: {
+                        size: 16
+                    }
+                }
+            }
+        }
+    });
+}
 
-// Função para renderizar os gráficos
-function renderCharts(stats) {
-    // Gráfico de leitura por pessoa
-    const readingCtx = document.getElementById('readingChart').getContext('2d');
-    new Chart(readingCtx, {
+function renderMostReadAuthorsChart(authorCount) {
+    // Ordenar autores por quantidade (do maior para o menor)
+    const sortedAuthors = Object.entries(authorCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8); // Pegar os top 8 autores
+    
+    const ctx = document.getElementById('mostReadAuthorsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: sortedAuthors.map(a => a[0]),
+            datasets: [{
+                data: sortedAuthors.map(a => a[1]),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(199, 199, 199, 0.7)',
+                    'rgba(83, 102, 255, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(199, 199, 199, 1)',
+                    'rgba(83, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Autores Mais Lidos',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Funções separadas para cada gráfico
+function renderReadingChart(stats) {
+    const ctx = document.getElementById('readingChart').getContext('2d');
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['Sttela', 'Renato', 'Ambos', 'Não lidos'],
@@ -609,52 +728,31 @@ function renderCharts(stats) {
                     'rgba(255, 206, 86, 0.7)',
                     'rgba(153, 102, 255, 0.7)'
                 ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(153, 102, 255, 1)'
-                ],
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            scales: { y: { beginAtZero: true } }
         }
     });
+}
 
-    // Gráfico de gêneros
-    const genres = Object.keys(stats.genreCount);
-    const genreData = Object.values(stats.genreCount);
-
-    const genreCtx = document.getElementById('genreChart').getContext('2d');
-    new Chart(genreCtx, {
+function renderGenreChart(genreCount) {
+    const ctx = document.getElementById('genreChart').getContext('2d');
+    new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: genres,
+            labels: Object.keys(genreCount),
             datasets: [{
-                data: genreData,
+                data: Object.values(genreCount),
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.7)',
                     'rgba(54, 162, 235, 0.7)',
                     'rgba(255, 206, 86, 0.7)',
                     'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)',
-                    'rgba(255, 159, 64, 0.7)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
+                    'rgba(153, 102, 255, 0.7)'
                 ],
                 borderWidth: 1
             }]
@@ -663,15 +761,57 @@ function renderCharts(stats) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'right'
+                legend: { position: 'right' }
+            }
+        }
+    });
+}
+
+function renderReadPercentageChart(stats) {
+    const ctx = document.getElementById('readPercentageChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Lidos', 'Não lidos'],
+            datasets: [{
+                data: [stats.readBooksCount, stats.unread],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Progresso de Leitura',
+                    font: { size: 16 }
                 }
             }
         }
     });
 }
- 
-// Carrega os livros assim que a página é aberta
+
+// Função para renderizar os gráficos
+function renderCharts(stats) {
+    // Gráfico de leitura por pessoa (existente)
+    renderReadingChart(stats);
+    
+    // Gráfico de gêneros (todos os livros)
+    renderGenreChart(stats.genreCount);
+    
+    // Novos gráficos
+    renderMostReadGenresChart(stats.readGenreCount);
+    renderMostReadAuthorsChart(stats.authorCount);
+    
+    // Gráfico adicional: porcentagem de livros lidos
+    renderReadPercentageChart(stats);
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     carregarLivros();
