@@ -539,44 +539,43 @@ document.getElementById('nextPage').addEventListener('click', () => {
         // Função para renderizar os cards de estatísticas
         function renderStatsCards(stats) {
             const container = document.getElementById('stats-container');
-            
-            const cards = [
-                {
-                    icon: "📚",
-                    value: stats.totalBooks,
-                    label: "Total de Livros",
-                    bg: "bg-primary bg-opacity-10",
-                    text: "text-primary"
-                },
-                {
-                    icon: "👩",
-                    value: stats.sttelaRead,
-                    label: "Lidos pela Sttela",
-                    bg: "bg-success bg-opacity-10",
-                    text: "text-success"
-                },
-                {
-                    icon: "👨",
-                    value: stats.renatoRead,
-                    label: "Lidos pelo Renato",
-                    bg: "bg-info bg-opacity-10",
-                    text: "text-info"
-                },
-                {
-                    icon: "👫",
-                    value: stats.bothRead,
-                    label: "Lidos por ambos",
-                    bg: "bg-warning bg-opacity-10",
-                    text: "text-warning"
-                },
-                {
-                    icon: "🕒",
-                    value: stats.unread,
-                    label: "Aguardando leitura",
-                    bg: "bg-secondary bg-opacity-10",
-                    text: "text-secondary"
-                }
-            ];
+         const cards = [
+    {
+        icon: "📚",
+        value: stats.totalBooks,
+        label: "Total de Livros",
+        bg: "bg-primary bg-opacity-10",
+        text: "text-primary"
+    },
+    {
+        icon: "👩🏼",  // Mulher com tom de pele médio-claro
+        value: stats.sttelaRead,
+        label: "Lidos pela Sttela",
+        bg: "bg-success bg-opacity-10",
+        text: "text-success"
+    },
+    {
+        icon: "👨🏼",  // Homem com tom de pele médio-claro
+        value: stats.renatoRead,
+        label: "Lidos pelo Renato",
+        bg: "bg-info bg-opacity-10",
+        text: "text-info"
+    },
+    {
+        icon: "👫🏽",  // Casal com tom de pele médio-claro
+        value: stats.bothRead,
+        label: "Lidos por ambos",
+        bg: "bg-warning bg-opacity-10",
+        text: "text-warning"
+    },
+    {
+        icon: "🕒",
+        value: stats.unread,
+        label: "Aguardando leitura",
+        bg: "bg-secondary bg-opacity-10",
+        text: "text-secondary"
+    }
+];
             
             container.innerHTML = cards.map(card => `
                 <div class="col-md-4 col-6">
