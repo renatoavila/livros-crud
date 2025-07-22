@@ -176,12 +176,12 @@ livroForm.addEventListener("submit", async (e) => {
     const id = document.getElementById("livroId").value;
     const livroData = {
         id: document.getElementById("livroId").value,
-        titulo: document.getElementById("titulo").value.trim(),
-        autor: document.getElementById("autor").value.trim(),
-        ano: document.getElementById("ano").value.trim(),
-        local: document.getElementById("local").value.trim(),
-        data: document.getElementById("data").value.trim(),
-        genero: document.getElementById("genero").value.trim(),
+        titulo: document.getElementById("titulo").value.trim().replace(/\s+/g, ' '),
+        autor: document.getElementById("autor").value.trim().replace(/\s+/g, ' '),
+        ano: document.getElementById("ano").value.trim().replace(/\s+/g, ' '),
+        local: document.getElementById("local").value.trim().replace(/\s+/g, ' '),
+        data: document.getElementById("data").value.trim().replace(/\s+/g, ' '),
+        genero: document.getElementById("genero").value.trim().replace(/\s+/g, ' '),
         sttela: document.getElementById("sttela").checked ? "Sim" : "Não",
         renato: document.getElementById("renato").checked ? "Sim" : "Não"
     };
@@ -276,8 +276,8 @@ function mostrarConfirmacao(msg) {
 
 function filtrarTabela() {
   // 1. Normaliza o termo da busca UMA VEZ, para maior eficiência.
-  const filtroNormalizado = removerAcentos(document.getElementById('buscaInput').value);
-
+  const filtroNormalizado = removerAcentos(document.getElementById('buscaInput').value.trim().replace(/\s+/g, ' '));
+ 
   if (filtroNormalizado.trim() === "") {
     filteredBooks = [...allBooks];
   } else {
