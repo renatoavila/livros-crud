@@ -546,6 +546,7 @@ function calculateStats() {
     const sttelaRead = books.filter(book => book.sttela === "Sim").length;
     const renatoRead = books.filter(book => book.renato === "Sim").length;
     const bothRead = books.filter(book => book.sttela === "Sim" && book.renato === "Sim").length;
+    const readBySomeone = books.filter(book => book.sttela === "Sim" || book.renato === "Sim").length;
     const unread = books.filter(book => book.sttela === "Não" && book.renato === "Não").length;    
     const readBooks = books.filter(book => book.sttela === "Sim" || book.renato === "Sim");
 
@@ -576,6 +577,7 @@ function calculateStats() {
         sttelaRead,
         renatoRead,
         bothRead,
+        readBySomeone,
         unread,
         genreCount,        
         readGenreCount,
@@ -615,6 +617,13 @@ function renderStatsCards(stats) {
             label: "Lidos por ambos",
             bg: "bg-warning bg-opacity-10",
             text: "text-warning"
+        },
+        {
+            icon: "✅",
+            value: stats.readBySomeone,
+            label: "Lidos por alguém",
+            bg: "bg-dark bg-opacity-10",
+            text: "text-dark"
         },
         {
             icon: "🕒",
@@ -765,20 +774,46 @@ function renderReadingChart(stats) {
 }
 
 function renderGenreChart(genreCount) {
+    // Converte o objeto em um array de pares [gênero, contagem]
+    const sortedGenres = Object.entries(genreCount)
+        .sort((a, b) => b[1] - a[1]); // Ordena do maior para o menor
+
+    const topGenres = sortedGenres.slice(0, 12);
+    const otherGenres = sortedGenres.slice(12);
+
+    const labels = topGenres.map(item => item[0]);
+    const data = topGenres.map(item => item[1]);
+
+    if (otherGenres.length > 0) {
+        const otherTotal = otherGenres.reduce((sum, item) => sum + item[1], 0);
+        labels.push('Outros');
+        data.push(otherTotal);
+    }
+
+    const backgroundColors = [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(201, 203, 207, 0.7)',
+        'rgba(255, 99, 71, 0.7)',
+        'rgba(100, 149, 237, 0.7)',
+        'rgba(60, 179, 113, 0.7)',
+        'rgba(220, 20, 60, 0.7)',
+        'rgba(0, 191, 255, 0.7)',
+        'rgba(169, 169, 169, 0.7)' // cor para 'Outros'
+    ];
+
     const ctx = document.getElementById('genreChart').getContext('2d');
     new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: Object.keys(genreCount),
+            labels: labels,
             datasets: [{
-                data: Object.values(genreCount),
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)'
-                ],
+                data: data,
+                backgroundColor: backgroundColors.slice(0, labels.length),
                 borderWidth: 1
             }]
         },
@@ -791,6 +826,7 @@ function renderGenreChart(genreCount) {
         }
     });
 }
+
 
 function renderReadPercentageChart(stats) {
     const ctx = document.getElementById('readPercentageChart').getContext('2d');
