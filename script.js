@@ -221,6 +221,7 @@ async function confirmarExclusao(livro) {
         toggleTableLoading(false); // Esconde o loading se falhar
     }
 }
+
 function mostrarConfirmacao(msg) {
     return new Promise(resolve => {
         const modalHtml = `
@@ -273,36 +274,59 @@ function mostrarConfirmacao(msg) {
 // =================================================================
 
 function filtrarTabela() {
-    const filtro = document.getElementById('buscaInput').value.toLowerCase();
+  // 1. Normaliza o termo da busca UMA VEZ, para maior eficiência.
+  const filtroNormalizado = removerAcentos(document.getElementById('buscaInput').value);
 
-    if (filtro.trim() === "") {
-        filteredBooks = [...allBooks];
-    } else {
-        filteredBooks = allBooks.filter(livro => {
-            return (
-                livro.titulo.toLowerCase().includes(filtro) ||
-                (livro.autor && livro.autor.toLowerCase().includes(filtro)) ||
-                (livro.genero && livro.genero.toLowerCase().includes(filtro))
-            );
-        });
-    }
+  if (filtroNormalizado.trim() === "") {
+    filteredBooks = [...allBooks];
+  } else {
+    filteredBooks = allBooks.filter(livro => {
+      // 2. Normaliza os dados de cada livro ANTES de fazer a comparação.
+      const tituloNormalizado = removerAcentos(livro.titulo);
+      const autorNormalizado = removerAcentos(livro.autor);
+      const generoNormalizado = removerAcentos(livro.genero);
+      
+      return (
+        tituloNormalizado.includes(filtroNormalizado) ||
+        autorNormalizado.includes(filtroNormalizado) ||
+        generoNormalizado.includes(filtroNormalizado)
+      );
+    });
+  }
+ 
 
-    // Reset para a primeira página após filtrar
-    currentPage = 1;
-    renderTable();
+  // Reset para a primeira página após filtrar
+  currentPage = 1;
+  renderTable();
 
-    // Mostra mensagem se não encontrar resultados
-    const mensagem = document.getElementById("mensagemSemResultados");
-    const termo = document.getElementById("termoBuscado");
+  // Mostra mensagem se não encontrar resultados
+  const mensagem = document.getElementById("mensagemSemResultados");
+  const termo = document.getElementById("termoBuscado");
 
-    if (filteredBooks.length === 0 && filtro.trim() !== "") {
-        termo.textContent = filtro;
-        mensagem.classList.remove("d-none");
-    } else {
-        mensagem.classList.add("d-none");
-    }
+  if (filteredBooks.length === 0 && filtroNormalizado.trim() !== "") {
+    // Mostra o termo original digitado pelo usuário na mensagem
+    termo.textContent = document.getElementById('buscaInput').value;
+    mensagem.classList.remove("d-none");
+  } else {
+    mensagem.classList.add("d-none");
+  }
 }
 
+/**
+ * Remove acentos de uma string, converte para minúsculas e a retorna.
+ * Ex: "Ficção Científica" se torna "ficcao cientifica"
+ * @param {string} texto O texto a ser normalizado.
+ * @returns {string} O texto normalizado.
+ */
+function removerAcentos(texto) {
+  // Retorna uma string vazia se a entrada for nula ou indefinida
+  if (!texto) return ""; 
+  
+  return texto
+    .toLowerCase() // Converte para minúsculas
+    .normalize("NFD") // Separa os acentos das letras (ex: 'á' vira 'a' + '´')
+    .replace(/[\u0300-\u036f]/g, ""); // Remove os acentos usando uma expressão regular
+}
 
 
 // =================================================================
@@ -422,6 +446,7 @@ async function buscarLivroPorISBN(isbn) {
 
 function preencherLivro(title, authors, publishedDate) {
     livroForm.reset();
+    document.getElementById("livroId").value = "";
     document.getElementById("titulo").value = title ? capitalizeComExcecoes(title) : "";
     document.getElementById("autor").value = authors
         ? authors.map(nome => capitalizeComExcecoes(nome)).join(" | ")
