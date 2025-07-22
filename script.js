@@ -200,7 +200,7 @@ livroForm.addEventListener("submit", async (e) => {
     } else {
         showToast(result.message || "Ocorreu um erro.", "danger");
     }
-
+    document.getElementById('buscaInput').value = "";
     toggleFormLoading(false); // Desativa o loading APÓS a operação terminar
 });
 
@@ -216,6 +216,7 @@ async function confirmarExclusao(livro) {
     if (result.success) {
         showToast(result.message || "Livro excluído com sucesso!");
         carregarLivros(); // Recarrega a lista
+        document.getElementById('buscaInput').value
     } else {
         showToast(result.message || "Falha ao excluir o livro.", "danger");
         toggleTableLoading(false); // Esconde o loading se falhar
