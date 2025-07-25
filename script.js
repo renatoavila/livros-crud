@@ -509,7 +509,7 @@ function renderTable() {
 
             tr.innerHTML = `
                 <td class="align-middle">
-                    <div class="text-truncate" style="max-width: 300px;" title="${livro.titulo}">${livro.titulo}</div>
+                    <div class="text-truncate"  data-bs-toggle="tooltip" style="max-width: 400px;" title="${livro.titulo}">${livro.titulo}</div>
                 </td>
                 <td class="align-middle d-none d-md-table-cell">
                     <div class="text-truncate" style="max-width: 160px;" title="${livro.autor}">${livro.autor}</div>

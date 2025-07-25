@@ -1,11 +1,14 @@
-html, body {
-    background-color: #f4f6f9;
+body {
+    background: #f8f9fa;
+    font-family: 'Inter', sans-serif;
 }
 
 .card {
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
 }
+
 
 .spinner-border {
     width: 1.5rem;
@@ -130,4 +133,12 @@ html, body {
 #listaDeLivros {
     min-height: 500px; /* Altura aproximada para 10 linhas */
     display: block;
+}
+
+.btn, .form-control {
+    transition: all 0.2s ease-in-out;
+}
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
