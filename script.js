@@ -508,17 +508,22 @@ function renderTable() {
             const statusLeituraRenato = livro.renato && livro.renato.trim().toLowerCase() !== "não" ? "✅" : "";
 
             tr.innerHTML = `
-                 <td>${livro.titulo}</td>
-                 <td class="d-none d-md-table-cell">${livro.autor}</td>
-                 <td class="d-none d-md-table-cell">${genero}</td>
-                <td class="d-none d-md-table-cell text-center">${statusLeituraSttela}</td>
-                <td class="d-none d-md-table-cell text-center">${statusLeituraRenato}</td>
-                 <td class="text-end">
-                     <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
-                     <button class="btn btn-sm remove" title="Excluir">🗑️</button>
-                 </td>
-             `;
-
+                <td class="align-middle">
+                    <div class="text-truncate" style="max-width: 300px;" title="${livro.titulo}">${livro.titulo}</div>
+                </td>
+                <td class="align-middle d-none d-md-table-cell">
+                    <div class="text-truncate" style="max-width: 160px;" title="${livro.autor}">${livro.autor}</div>
+                </td>
+                <td class="align-middle d-none d-md-table-cell">
+                    <div class="text-truncate" style="max-width: 120px;" title="${genero}">${genero}</div>
+                </td>
+                <td class="align-middle d-none d-md-table-cell text-center" style="width: 40px;">${statusLeituraSttela}</td>
+                <td class="align-middle d-none d-md-table-cell text-center" style="width: 40px;">${statusLeituraRenato}</td>
+                <td class="align-middle text-end text-nowrap" style="width: 80px;">
+                    <button class="btn btn-sm me-1 edit" title="Editar">✏️</button>
+                    <button class="btn btn-sm remove" title="Excluir">🗑️</button>
+                </td>
+            `;
             tr.querySelector('.edit').addEventListener('click', () => abrirModalEditar(livro));
             tr.querySelector('.remove').addEventListener('click', () => confirmarExclusao(livro));
 
