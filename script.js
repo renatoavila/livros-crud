@@ -840,11 +840,18 @@ function renderGenreChart(genreCount) {
 
 
 function renderReadPercentageChart(stats) {
+    const totalBooks = stats.readBooksCount + stats.unread;
+    const readPercentage = totalBooks > 0 ? (stats.readBooksCount / totalBooks) * 100 : 0;
+    const unreadPercentage = 100 - readPercentage;
+
     const ctx = document.getElementById('readPercentageChart').getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Lidos', 'Não lidos'],
+            labels: [
+                `Lidos (${readPercentage.toFixed(1)}%)`,
+                `Não lidos (${unreadPercentage.toFixed(1)}%)`
+            ],
             datasets: [{
                 data: [stats.readBooksCount, stats.unread],
                 backgroundColor: [
@@ -860,13 +867,14 @@ function renderReadPercentageChart(stats) {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Progresso de Leitura',
+                    text: `Progresso de Leitura: ${readPercentage.toFixed(1)}% lidos`,
                     font: { size: 16 }
                 }
             }
         }
     });
 }
+
 
 // Função para renderizar os gráficos
 function renderCharts(stats) {
@@ -891,4 +899,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa o seletor com o valor padrão
     document.getElementById('itemsPerPageSelect').value = itemsPerPage;
     document.getElementById('itemsPerPageSelect').addEventListener('change', updateItemsPerPage);
+
 });
