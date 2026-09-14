@@ -81,10 +81,19 @@
     border-radius:var(--radius);padding:12px;
     cursor:pointer;
   }
-  .spine{
+  .spine-wrap{
     width:38px;height:54px;border-radius:5px;flex-shrink:0;
+    position:relative;overflow:hidden;
+  }
+  .spine-fallback{
+    position:absolute;inset:0;
     display:flex;align-items:center;justify-content:center;
     font-family:'Fraunces',serif;font-size:16px;color:#fff;
+  }
+  .spine-cover{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;opacity:0;transition:opacity .35s ease;
+    background:var(--card);
   }
   .book .info{flex:1;min-width:0;}
   .book .titulo{font-family:'Fraunces',serif;font-size:15.5px;line-height:1.3;}
@@ -485,7 +494,10 @@ function renderList() {
     if (livro.sttela === 'Sim') tagsWho += `<span class="tag who">Sttela leu</span>`;
     if (livro.renato === 'Sim') tagsWho += `<span class="tag who">Renato leu</span>`;
     div.innerHTML = `
-      <div class="spine" style="background:${colorFor(livro.titulo)}">${initialsFor(livro.titulo)}</div>
+      <div class="spine-wrap">
+        <div class="spine-fallback" style="background:${colorFor(livro.titulo)}">${initialsFor(livro.titulo)}</div>
+        <img class="spine-cover" data-id="${escapeHtml(String(livro.id))}" alt="" />
+      </div>
       <div class="info">
         <div class="titulo">${escapeHtml(livro.titulo)}</div>
         <div class="autor">${escapeHtml(livro.autor || '')}</div>
@@ -496,12 +508,75 @@ function renderList() {
       </button>
     `;
     div.querySelector('.info').onclick = () => abrirModalEditar(livro);
-    div.querySelector('.spine').onclick = () => abrirModalEditar(livro);
+    div.querySelector('.spine-wrap').onclick = () => abrirModalEditar(livro);
     div.querySelector('.del').onclick = (e) => { e.stopPropagation(); pedirConfirmacaoExclusao(livro); };
     bookList.appendChild(div);
   });
 
   loadMoreBtn.style.display = filteredBooks.length > visibleCount ? 'block' : 'none';
+
+  // Capas são buscadas depois, em segundo plano — não atrasam a lista.
+  scheduleCoverFetch(slice);
+}
+
+// =================================================================
+// CAPAS (busca em segundo plano, sem travar a lista)
+// =================================================================
+const coverCache = new Map(); // chave: titulo|autor normalizado -> url da capa (ou null se não achou)
+let coverGen = 0;
+
+function coverKey(livro) {
+  const primeiroAutor = (livro.autor || '').split('|')[0];
+  return removerAcentos(livro.titulo) + '|' + removerAcentos(primeiroAutor);
+}
+
+function applyCover(id, url) {
+  if (!url) return;
+  const img = bookList.querySelector(`.spine-cover[data-id="${CSS.escape(String(id))}"]`);
+  if (!img) return;
+  img.onload = () => { img.style.opacity = '1'; };
+  img.onerror = () => { img.style.opacity = '0'; };
+  img.src = url;
+}
+
+async function fetchCoverFor(livro) {
+  const key = coverKey(livro);
+  try {
+    const primeiroAutor = (livro.autor || '').split('|')[0].trim();
+    const q = encodeURIComponent(`intitle:${livro.titulo} inauthor:${primeiroAutor}`);
+    const resp = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1`);
+    if (!resp.ok) throw new Error('falha na busca de capa');
+    const data = await resp.json();
+    const info = data.items?.[0]?.volumeInfo;
+    let url = info?.imageLinks?.thumbnail || info?.imageLinks?.smallThumbnail || null;
+    if (url) url = url.replace('http://', 'https://');
+    coverCache.set(key, url);
+    if (url) applyCover(livro.id, url);
+  } catch (e) {
+    coverCache.set(key, null);
+  }
+}
+
+/** Aplica capas já em cache na hora, e busca as que faltam uma a uma, sem bloquear a UI. */
+function scheduleCoverFetch(items) {
+  const gen = ++coverGen; // cancela filas antigas se o usuário filtrar/buscar de novo
+  const pendentes = [];
+  items.forEach(livro => {
+    const key = coverKey(livro);
+    if (coverCache.has(key)) {
+      applyCover(livro.id, coverCache.get(key));
+    } else {
+      pendentes.push(livro);
+    }
+  });
+
+  let i = 0;
+  function next() {
+    if (gen !== coverGen || i >= pendentes.length) return;
+    const livro = pendentes[i++];
+    fetchCoverFor(livro).finally(() => setTimeout(next, 150));
+  }
+  next();
 }
 loadMoreBtn.onclick = () => { visibleCount += PAGE_SIZE; renderList(); };
 
