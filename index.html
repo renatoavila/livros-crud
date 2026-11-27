@@ -922,7 +922,7 @@ function renderStats() {
     readingChart = new Chart(document.getElementById('readingChart'), {
       type: 'doughnut',
       data: { labels: ['Sttela','Renato','Clarice'], datasets: [{ data: [0,0,0], backgroundColor: [green, rust, '#3D5A6C'] }] },
-      options: { plugins: { legend: { position: 'bottom' } } }
+      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, boxHeight: 12, padding: 14 } } } }
     });
     genreChart = new Chart(document.getElementById('genreChart'), {
       type: 'bar',
