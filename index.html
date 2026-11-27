@@ -125,12 +125,12 @@
   }
 
   .tabs{
-    position:fixed;bottom:0;left:0;right:0;
-    max-width:480px;margin:0 auto;
+    /* Sempre a largura toda da tela; os botões ficam centralizados em até 480px. */
+    position:fixed;bottom:0;left:0;right:0;width:100%;
     background:var(--card);border:0;border-top:1px solid var(--line);
     display:flex;z-index:20;
-    /* Ocupa a área segura do iPhone (barra de gestos e laterais), sem faixas da cor do fundo. */
-    padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    /* Fundo branco vai até a barra de gestos/navegação do sistema e às laterais. */
+    padding:0 max(env(safe-area-inset-right), calc((100% - 480px) / 2)) env(safe-area-inset-bottom) max(env(safe-area-inset-left), calc((100% - 480px) / 2));
   }
   .tab{
     flex:1;border:0;border-radius:0;background:none;margin:0;padding:12px 0 10px;
@@ -162,12 +162,15 @@
     background:var(--paper);
     border-radius:20px 20px 0 0;
     z-index:31;
-    transform:translateY(100%);
-    transition:transform .25s ease;
+    /* Fechada, a folha fica escondida de verdade: antes ela ficava logo abaixo da tela e
+       aparecia por baixo do menu quando a barra do navegador recolhia ou a página "quicava". */
+    transform:translateY(calc(100% + 40px));
+    visibility:hidden;
+    transition:transform .25s ease, visibility 0s linear .25s;
     max-height:88vh;overflow-y:auto;
     padding-bottom:24px;
   }
-  .sheet.show{transform:translateY(0);}
+  .sheet.show{transform:translateY(0);visibility:visible;transition:transform .25s ease, visibility 0s;}
   .sheet-handle{width:36px;height:4px;background:var(--line);border-radius:99px;margin:10px auto 4px;}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 4px;}
   .sheet-head h2{font-size:18px;}
@@ -256,7 +259,6 @@
   .row-item .txt{flex:1;min-width:0;}
   .row-item .t1{font-family:'Fraunces',serif;font-size:14.5px;line-height:1.3;}
   .row-item .t2{font-size:12px;color:var(--ink-soft);margin-top:1px;}
-  .sub-h{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 4px;}
 
   .confirm-box{padding:18px;}
   .confirm-box p{font-size:14px;margin:0 0 16px;}
@@ -324,8 +326,7 @@
   <main id="view-stats" style="display:none;">
     <div class="stats-row" id="statsRow"></div>
     <div class="chart-card"><h3>Progresso de cada um</h3><p>Quanto da estante cada pessoa já leu</p><div id="progressBox"></div></div>
-    <div class="chart-card"><h3>Quem leu o quê</h3><p>Leituras em comum entre os três</p><div class="mini-grid" id="overlapBox"></div>
-      <div class="sub-h">Dicas de leitura</div><div class="rows" id="dicasBox"></div></div>
+    <div class="chart-card"><h3>Quem leu o quê</h3><p>Leituras em comum entre os três</p><div class="mini-grid" id="overlapBox"></div></div>
     <div class="chart-card"><h3>Esperando na estante</h3><p>Comprados há mais tempo e que ninguém leu ainda</p><div class="rows" id="esperandoBox"></div></div>
     <div class="chart-card"><h3>Gênero favorito de cada um</h3><p>O gênero que cada pessoa mais leu</p><div class="rows" id="favGenreBox"></div></div>
     <div class="chart-card"><h3>Gêneros na estante</h3><p>Os gêneros com mais livros cadastrados</p><div class="chart-box" id="genreBox"><canvas id="genreChart"></canvas></div></div>
@@ -333,7 +334,6 @@
     <div class="chart-card"><h3>Autores mais lidos</h3><p>Top 10 autores com mais livros lidos</p><div class="chart-box" id="authorsBox"><canvas id="mostReadAuthorsChart"></canvas></div></div>
     <div class="chart-card"><h3>Compras por ano</h3><p>Livros comprados em cada ano</p><div class="chart-box"><canvas id="comprasChart"></canvas></div><p class="note" id="comprasNote"></p></div>
     <div class="chart-card"><h3>Onde vocês compram</h3><p>Locais de compra mais comuns</p><div class="chart-box" id="locaisBox"><canvas id="locaisChart"></canvas></div><p class="note" id="locaisNote"></p></div>
-    <div class="chart-card"><h3>Idade da estante</h3><p>Livros por década de publicação</p><div class="chart-box"><canvas id="decadasChart"></canvas></div><div class="rows" id="extremosBox" style="margin-top:10px;"></div></div>
   </main>
 
   <main id="view-sorteio" style="display:none;">
@@ -1007,12 +1007,6 @@ const generosDe = l => [l.genero && l.genero.trim() ? l.genero : 'Não informado
 const autoresDe = l => (l.autor || '').split('|');
 const localDe = l => [l.local];
 
-function anoPublicacao(livro) {
-  const ano = parseInt(livro.ano, 10); // aceita "2005" e "2005-03-01"
-  const limite = new Date().getFullYear() + 1;
-  return ano >= 1000 && ano <= limite ? ano : null;
-}
-
 const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 function mesAno(d) { return `${MESES[d.getMonth()]}/${d.getFullYear()}`; }
 
@@ -1079,23 +1073,6 @@ function renderStats() {
     [porQtd[0], 'Ninguém leu'],
   ].map(([n, l]) => `<div class="mini"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 
-  // Dicas: para cada pessoa, livros que outra pessoa já leu e ela ainda não.
-  document.getElementById('dicasBox').innerHTML = PESSOAS.map(p => {
-    const opcoes = allBooks
-      .filter(l => l[p] !== 'Sim' && lidoPorAlguem(l))
-      .sort((a, b) => quantosLeram(b) - quantosLeram(a) || (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR'));
-    if (opcoes.length === 0) {
-      return `<div class="row-item">${personDot(p)}<div class="txt"><div class="t2">${NOMES[p]} já leu tudo que os outros leram.</div></div></div>`;
-    }
-    const livro = opcoes[0];
-    const quem = PESSOAS.filter(o => livro[o] === 'Sim').map(o => NOMES[o]).join(' e ');
-    const mais = opcoes.length > 1 ? ` · mais ${opcoes.length - 1} nessa situação` : '';
-    return `<div class="row-item">${personDot(p)}<div class="txt">
-      <div class="t1">${escapeHtml(livro.titulo)}</div>
-      <div class="t2">Para ${NOMES[p]}: ${quem} já leu${mais}</div>
-    </div></div>`;
-  }).join('');
-
   // Esperando na estante: comprados há mais tempo e que ninguém leu
   const esperando = ninguem.filter(l => dataCompra(l)).sort((a, b) => dataCompra(a) - dataCompra(b)).slice(0, 3);
   document.getElementById('esperandoBox').innerHTML = esperando.length
@@ -1136,22 +1113,6 @@ function renderStats() {
   barChart('locaisChart', locais.slice(0, 8), ocre, { horizontal: true, boxId: 'locaisBox' });
   const semLocal = allBooks.filter(l => !(l.local || '').trim()).length;
   document.getElementById('locaisNote').textContent = semLocal ? `${semLocal} livro${semLocal === 1 ? '' : 's'} sem local de compra.` : '';
-
-  // Idade da estante: por década de publicação
-  const comAno = allBooks.filter(anoPublicacao);
-  const porDecada = {};
-  comAno.forEach(l => { const d = Math.floor(anoPublicacao(l) / 10) * 10; porDecada[d] = (porDecada[d] || 0) + 1; });
-  const decadas = Object.keys(porDecada).map(Number).sort((a, b) => a - b);
-  barChart('decadasChart', decadas.map(d => [`${d}s`, porDecada[d]]), green);
-  if (comAno.length) {
-    const ord = [...comAno].sort((a, b) => anoPublicacao(a) - anoPublicacao(b));
-    const linha = (rot, l) => `<div class="row-item"><div class="txt">
-      <div class="t2">${rot}</div><div class="t1">${escapeHtml(l.titulo)} <span class="t2">(${anoPublicacao(l)})</span></div>
-    </div></div>`;
-    document.getElementById('extremosBox').innerHTML = linha('Mais antigo', ord[0]) + linha('Mais novo', ord[ord.length - 1]);
-  } else {
-    document.getElementById('extremosBox').innerHTML = vazio('Nenhum livro com ano de publicação.');
-  }
 }
 
 // =================================================================
