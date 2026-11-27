@@ -286,6 +286,11 @@
   .draw-result .autor{font-size:13.5px;color:var(--ink-soft);margin-top:4px;}
   .draw-result .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px;}
   .draw-result.rolling .titulo,.draw-result.rolling .autor{opacity:.45;}
+  .draw-result .readers{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
+  .draw-result .readers-label{font-size:11.5px;color:var(--ink-soft);margin-bottom:8px;}
+  .draw-result .readers-list{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;}
+  .draw-result .reader{display:inline-flex;align-items:center;gap:6px;font-size:13px;}
+  .draw-result .readers-none{font-size:13px;color:var(--ink-soft);}
 </style>
 </head>
 <body>
@@ -1164,7 +1169,16 @@ function renderSorteado(livro, rolando) {
     <div class="titulo">${escapeHtml(livro.titulo)}</div>
     <div class="autor">${escapeHtml(livro.autor || '')}</div>
     <div class="meta"><span class="tag">${escapeHtml(genero)}</span>${ano}</div>
+    ${rolando ? '' : quemJaLeuHtml(livro)}
   `;
+}
+
+function quemJaLeuHtml(livro) {
+  const leram = PESSOAS.filter(p => livro[p] === 'Sim');
+  const conteudo = leram.length
+    ? `<div class="readers-list">${leram.map(p => `<span class="reader">${personDot(p)}${NOMES[p]}</span>`).join('')}</div>`
+    : `<div class="readers-none">Ninguém leu ainda</div>`;
+  return `<div class="readers"><div class="readers-label">Quem já leu</div>${conteudo}</div>`;
 }
 
 async function mostrarCapaSorteado(livro, gen) {
