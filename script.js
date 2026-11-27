@@ -3,7 +3,7 @@
 // =================================================================
 
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzG9uM4nyt992rv5jF8ZAkaveLrc1TnCL4I1LHkAqfIomdAkcQVZAS7d9ya8uyd7Z-g/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyi4NpC0dfG0Gj_A6JNzsBwDNwv2SrtIBnDmSMinkiZga79yicNiDPcmZ5GC75VyjsL/exec';
 
 // Seletores do DOM
 const livroForm = document.getElementById("livroForm");
