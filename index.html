@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Estante</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,7 @@
     font-family:'Inter',sans-serif;
     font-size:15px;
     -webkit-font-smoothing:antialiased;
-    padding-bottom:84px;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
   }
   #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
   h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;margin:0;}
@@ -118,18 +118,22 @@
   .tabs{
     position:fixed;bottom:0;left:0;right:0;
     max-width:480px;margin:0 auto;
-    background:var(--card);border-top:1px solid var(--line);
+    background:var(--card);border:0;border-top:1px solid var(--line);
     display:flex;z-index:20;
+    /* Ocupa a área segura do iPhone (barra de gestos e laterais), sem faixas da cor do fundo. */
+    padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   .tab{
-    flex:1;border:none;background:none;padding:12px 0 10px;
+    flex:1;border:0;border-radius:0;background:none;margin:0;padding:12px 0 10px;
+    -webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;
+    font-family:inherit;
     display:flex;flex-direction:column;align-items:center;gap:3px;
     color:var(--ink-soft);font-size:11.5px;
   }
   .tab.active{color:var(--green);}
 
   .fab{
-    position:fixed;right:calc(50% - 240px + 18px);bottom:78px;
+    position:fixed;right:calc(50% - 240px + 18px);bottom:calc(78px + env(safe-area-inset-bottom));
     width:54px;height:54px;border-radius:50%;
     background:var(--rust);color:#fff;border:none;
     display:flex;align-items:center;justify-content:center;
@@ -468,8 +472,8 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.getElementById('view-stats').style.display = aba === 'stats' ? 'block' : 'none';
     document.getElementById('view-sorteio').style.display = aba === 'sorteio' ? 'block' : 'none';
     document.getElementById('fabAdd').style.display = aba === 'lista' ? 'flex' : 'none';
-    // Busca e filtros só fazem sentido na estante e nas estatísticas.
-    const mostrarBusca = aba !== 'sorteio';
+    // Busca e filtros só fazem sentido na estante.
+    const mostrarBusca = aba === 'lista';
     document.querySelector('.search').style.display = mostrarBusca ? 'flex' : 'none';
     document.querySelector('.chips').style.display = mostrarBusca ? 'flex' : 'none';
     if (aba === 'stats') renderStats();
