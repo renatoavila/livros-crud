@@ -67,11 +67,16 @@
     transition:.15s;
   }
   .chip.active{background:var(--green);border-color:var(--green);color:#fff;}
+  .chip .cdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px;}
+  .chip.active .cdot{box-shadow:0 0 0 1.5px #fff;}
+  .list-bar{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12.5px;color:var(--ink-soft);}
+  .list-bar select{
+    border:1px solid var(--line);background:var(--card);color:var(--ink);
+    border-radius:999px;padding:5px 10px;font-family:'Inter',sans-serif;font-size:12.5px;outline:none;
+  }
 
   main{padding:16px 18px 8px;}
-  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px;}
-  .stats-row .stat{grid-column:span 2;}
-  .stats-row .stat:nth-child(-n+2){grid-column:span 3;}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;}
   .stat .n{font-family:'Fraunces',serif;font-size:22px;}
   .stat .l{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
@@ -102,8 +107,12 @@
   .book .autor{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
   .book .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
   .tag{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--paper-2);color:var(--ink-soft);}
-  .tag.who{background:var(--green-soft);color:var(--green);}
-  .book .del{background:none;border:none;color:var(--ink-soft);opacity:.5;padding:4px;flex-shrink:0;}
+  .who-dots{display:flex;gap:4px;flex-shrink:0;padding-top:1px;}
+  .pdot{
+    width:22px;height:22px;border-radius:50%;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+    color:#fff;font-size:11px;font-weight:600;
+  }
 
   .empty{text-align:center;padding:48px 20px;color:var(--ink-soft);}
   .empty h3{font-size:17px;margin-bottom:6px;color:var(--ink);}
@@ -194,6 +203,10 @@
     width:100%;background:var(--card);color:var(--ink);border:1px solid var(--line);
     padding:12px;border-radius:12px;font-size:14px;margin-top:8px;
   }
+  .btn-delete{
+    width:100%;background:none;color:var(--danger);border:none;
+    padding:12px;margin-top:6px;font-size:14px;font-family:'Inter',sans-serif;
+  }
   .btn-ghost-scan{
     width:100%;background:var(--rust-soft);color:var(--rust);border:none;
     padding:12px;border-radius:12px;font-size:14px;margin-bottom:16px;
@@ -222,6 +235,28 @@
   .chart-card h3{font-size:14.5px;margin-bottom:2px;}
   .chart-card p{font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;}
   .chart-box{position:relative;height:220px;}
+  .chart-card .note{font-size:12px;color:var(--ink-soft);margin:10px 0 0;}
+
+  .prog{margin-top:12px;}
+  .prog:first-child{margin-top:4px;}
+  .prog-top{display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:6px;}
+  .prog-top .nome{flex:1;}
+  .prog-top .val{font-size:12.5px;color:var(--ink-soft);}
+  .bar{height:8px;border-radius:99px;background:var(--paper-2);overflow:hidden;}
+  .bar > div{height:100%;border-radius:99px;}
+
+  .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .mini{background:var(--paper);border-radius:10px;padding:10px 12px;}
+  .mini .n{font-family:'Fraunces',serif;font-size:20px;}
+  .mini .l{font-size:11.5px;color:var(--ink-soft);margin-top:1px;}
+
+  .rows{display:flex;flex-direction:column;}
+  .row-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px;}
+  .row-item:first-child{border-top:0;padding-top:2px;}
+  .row-item .txt{flex:1;min-width:0;}
+  .row-item .t1{font-family:'Fraunces',serif;font-size:14.5px;line-height:1.3;}
+  .row-item .t2{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+  .sub-h{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 4px;}
 
   .confirm-box{padding:18px;}
   .confirm-box p{font-size:14px;margin:0 0 16px;}
@@ -267,9 +302,17 @@
     </div>
     <div class="chips">
       <div class="chip active" data-filter="todos">Todos</div>
-      <div class="chip" data-filter="sttela">Sttela</div>
-      <div class="chip" data-filter="renato">Renato</div>
-      <div class="chip" data-filter="clarice">Clarice</div>
+      <div class="chip" data-filter="sttela"><span class="cdot" style="background:#2F4B3C"></span>Sttela</div>
+      <div class="chip" data-filter="renato"><span class="cdot" style="background:#C1592B"></span>Renato</div>
+      <div class="chip" data-filter="clarice"><span class="cdot" style="background:#3D5A6C"></span>Clarice</div>
+    </div>
+    <div class="list-bar">
+      <span id="resultCount"></span>
+      <select id="ordenarSelect" aria-label="Ordenar">
+        <option value="titulo">Título (A–Z)</option>
+        <option value="autor">Autor (A–Z)</option>
+        <option value="recentes">Comprados recentemente</option>
+      </select>
     </div>
   </div>
 
@@ -280,11 +323,17 @@
 
   <main id="view-stats" style="display:none;">
     <div class="stats-row" id="statsRow"></div>
-    <div class="chart-card"><h3>Leitura por pessoa</h3><p>Livros marcados por cada um</p><div class="chart-box"><canvas id="readingChart"></canvas></div></div>
-    <div class="chart-card"><h3>Gêneros literários</h3><p>Distribuição de todos os livros cadastrados</p><div class="chart-box"><canvas id="genreChart"></canvas></div></div>
-    <div class="chart-card"><h3>Gêneros mais lidos</h3><p>Top 6 gêneros com mais livros lidos</p><div class="chart-box"><canvas id="mostReadGenresChart"></canvas></div></div>
-    <div class="chart-card"><h3>Autores mais lidos</h3><p>Top 10 autores com mais livros lidos</p><div class="chart-box"><canvas id="mostReadAuthorsChart"></canvas></div></div>
-    <div class="chart-card"><h3>Progresso de leitura</h3><p>Porcentagem de livros já lidos</p><div class="chart-box"><canvas id="readPercentageChart"></canvas></div></div>
+    <div class="chart-card"><h3>Progresso de cada um</h3><p>Quanto da estante cada pessoa já leu</p><div id="progressBox"></div></div>
+    <div class="chart-card"><h3>Quem leu o quê</h3><p>Leituras em comum entre os três</p><div class="mini-grid" id="overlapBox"></div>
+      <div class="sub-h">Dicas de leitura</div><div class="rows" id="dicasBox"></div></div>
+    <div class="chart-card"><h3>Esperando na estante</h3><p>Comprados há mais tempo e que ninguém leu ainda</p><div class="rows" id="esperandoBox"></div></div>
+    <div class="chart-card"><h3>Gênero favorito de cada um</h3><p>O gênero que cada pessoa mais leu</p><div class="rows" id="favGenreBox"></div></div>
+    <div class="chart-card"><h3>Gêneros na estante</h3><p>Os gêneros com mais livros cadastrados</p><div class="chart-box" id="genreBox"><canvas id="genreChart"></canvas></div></div>
+    <div class="chart-card"><h3>Gêneros mais lidos</h3><p>Gêneros com mais livros lidos por alguém</p><div class="chart-box" id="mostReadGenresBox"><canvas id="mostReadGenresChart"></canvas></div></div>
+    <div class="chart-card"><h3>Autores mais lidos</h3><p>Top 10 autores com mais livros lidos</p><div class="chart-box" id="authorsBox"><canvas id="mostReadAuthorsChart"></canvas></div></div>
+    <div class="chart-card"><h3>Compras por ano</h3><p>Livros comprados em cada ano</p><div class="chart-box"><canvas id="comprasChart"></canvas></div><p class="note" id="comprasNote"></p></div>
+    <div class="chart-card"><h3>Onde vocês compram</h3><p>Locais de compra mais comuns</p><div class="chart-box" id="locaisBox"><canvas id="locaisChart"></canvas></div><p class="note" id="locaisNote"></p></div>
+    <div class="chart-card"><h3>Idade da estante</h3><p>Livros por década de publicação</p><div class="chart-box"><canvas id="decadasChart"></canvas></div><div class="rows" id="extremosBox" style="margin-top:10px;"></div></div>
   </main>
 
   <main id="view-sorteio" style="display:none;">
@@ -372,6 +421,7 @@
       </div>
       <div class="sheet-foot" style="padding:6px 0 0;">
         <button type="submit" class="btn-primary" id="salvarBtn">Salvar</button>
+        <button type="button" class="btn-delete" id="excluirBtn" style="display:none;">Excluir livro</button>
       </div>
     </form>
   </div>
@@ -414,6 +464,14 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbyi4NpC0dfG0Gj_A6JNzsBwDNwv2SrtIBnDmSMinkiZga79yicNiDPcmZ5GC75VyjsL/exec';
 
 const SPINE_COLORS = ['#2F4B3C','#C1592B','#8C887E','#6E6A5E','#3D5A6C','#7A5C3E'];
+
+// Leitores: mesma cor em todo o app (bolinhas, filtros e estatísticas).
+const PESSOAS = ['sttela', 'renato', 'clarice'];
+const NOMES = { sttela: 'Sttela', renato: 'Renato', clarice: 'Clarice' };
+const CORES = { sttela: '#2F4B3C', renato: '#C1592B', clarice: '#3D5A6C' };
+function personDot(p) {
+  return `<span class="pdot" style="background:${CORES[p]}" title="${NOMES[p]} leu" aria-label="${NOMES[p]} leu">${NOMES[p].charAt(0)}</span>`;
+}
 
 let allBooks = [];
 let filteredBooks = [];
@@ -476,6 +534,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     const mostrarBusca = aba === 'lista';
     document.querySelector('.search').style.display = mostrarBusca ? 'flex' : 'none';
     document.querySelector('.chips').style.display = mostrarBusca ? 'flex' : 'none';
+    document.querySelector('.list-bar').style.display = mostrarBusca ? 'flex' : 'none';
     if (aba === 'stats') renderStats();
     if (aba === 'sorteio') atualizarInfoSorteio();
   };
@@ -513,8 +572,44 @@ function aplicarFiltros() {
       (currentFilter === 'clarice' && livro.clarice === 'Sim');
     return matchTermo && matchFiltro;
   });
+  ordenarLivros(filteredBooks);
   visibleCount = PAGE_SIZE;
   renderList();
+}
+
+// =================================================================
+// ORDENAÇÃO
+// =================================================================
+let ordemAtual = 'titulo';
+document.getElementById('ordenarSelect').addEventListener('change', (e) => {
+  ordemAtual = e.target.value;
+  aplicarFiltros();
+});
+
+function primeiroAutor(livro) {
+  return (livro.autor || '').split('|')[0].trim();
+}
+function dataCompra(livro) {
+  if (!livro.data) return null;
+  const d = new Date(livro.data);
+  return isNaN(d) ? null : d;
+}
+function ordenarLivros(lista) {
+  const porTitulo = (a, b) => (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR');
+  if (ordemAtual === 'autor') {
+    lista.sort((a, b) => primeiroAutor(a).localeCompare(primeiroAutor(b), 'pt-BR') || porTitulo(a, b));
+  } else if (ordemAtual === 'recentes') {
+    // Mais recentes primeiro; livros sem data de compra vão para o fim.
+    lista.sort((a, b) => {
+      const da = dataCompra(a), db = dataCompra(b);
+      if (da && db) return db - da || porTitulo(a, b);
+      if (da) return -1;
+      if (db) return 1;
+      return porTitulo(a, b);
+    });
+  } else {
+    lista.sort(porTitulo);
+  }
 }
 
 // =================================================================
@@ -532,6 +627,8 @@ function colorFor(titulo) {
 function renderList() {
   bookList.innerHTML = '';
   subCount.textContent = `${allBooks.length} livro${allBooks.length === 1 ? '' : 's'} na estante`;
+  const nRes = filteredBooks.length;
+  document.getElementById('resultCount').textContent = `${nRes} livro${nRes === 1 ? '' : 's'}`;
 
   if (filteredBooks.length === 0) {
     bookList.innerHTML = `<div class="empty"><h3>Nenhum livro encontrado</h3><p>Tente outro termo de busca ou filtro.</p></div>`;
@@ -544,10 +641,7 @@ function renderList() {
     const div = document.createElement('div');
     div.className = 'book';
     const genero = livro.genero && livro.genero.trim() !== '' ? livro.genero : 'Não informado';
-    let tagsWho = '';
-    if (livro.sttela === 'Sim') tagsWho += `<span class="tag who">Sttela leu</span>`;
-    if (livro.renato === 'Sim') tagsWho += `<span class="tag who">Renato leu</span>`;
-    if (livro.clarice === 'Sim') tagsWho += `<span class="tag who">Clarice leu</span>`;
+    const dots = PESSOAS.filter(p => livro[p] === 'Sim').map(p => personDot(p)).join('');
     div.innerHTML = `
       <div class="spine-wrap">
         <div class="spine-fallback" style="background:${colorFor(livro.titulo)}">${initialsFor(livro.titulo)}</div>
@@ -556,15 +650,11 @@ function renderList() {
       <div class="info">
         <div class="titulo">${escapeHtml(livro.titulo)}</div>
         <div class="autor">${escapeHtml(livro.autor || '')}</div>
-        <div class="meta"><span class="tag">${escapeHtml(genero)}</span>${tagsWho}</div>
+        <div class="meta"><span class="tag">${escapeHtml(genero)}</span></div>
       </div>
-      <button class="del" aria-label="Excluir">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-      </button>
+      ${dots ? `<div class="who-dots">${dots}</div>` : ''}
     `;
-    div.querySelector('.info').onclick = () => abrirModalEditar(livro);
-    div.querySelector('.spine-wrap').onclick = () => abrirModalEditar(livro);
-    div.querySelector('.del').onclick = (e) => { e.stopPropagation(); pedirConfirmacaoExclusao(livro); };
+    div.onclick = () => abrirModalEditar(livro);
     bookList.appendChild(div);
   });
 
@@ -645,8 +735,18 @@ function escapeHtml(str) {
 // =================================================================
 document.getElementById('fabAdd').onclick = abrirModalNovoLivro;
 
+let livroEmEdicao = null;
+document.getElementById('excluirBtn').onclick = () => {
+  if (!livroEmEdicao) return;
+  const livro = livroEmEdicao;
+  closeSheet('sheetForm','backdropForm');
+  pedirConfirmacaoExclusao(livro);
+};
+
 function limparForm() {
   livroForm.reset();
+  livroEmEdicao = null;
+  document.getElementById('excluirBtn').style.display = 'none';
   document.getElementById('livroId').value = '';
   document.getElementById('err-titulo').style.display = 'none';
   document.getElementById('err-autor').style.display = 'none';
@@ -677,6 +777,8 @@ function abrirModalEditar(livro) {
   document.getElementById('sttela').checked = livro.sttela === 'Sim';
   document.getElementById('renato').checked = livro.renato === 'Sim';
   document.getElementById('clarice').checked = livro.clarice === 'Sim';
+  livroEmEdicao = livro;
+  document.getElementById('excluirBtn').style.display = 'block';
   document.getElementById('formTitle').textContent = 'Editar livro';
   openSheet('sheetForm','backdropForm');
 }
@@ -868,119 +970,193 @@ function capitalizeComExcecoes(texto) {
 // =================================================================
 // ESTATÍSTICAS
 // =================================================================
-let chartsInited = false;
-let readingChart, genreChart, mostReadGenresChart, mostReadAuthorsChart, readPercentageChart;
+const charts = {};
+const lidoPorAlguem = l => PESSOAS.some(p => l[p] === 'Sim');
+const quantosLeram = l => PESSOAS.filter(p => l[p] === 'Sim').length;
 
-function calculateStats() {
-  const total = allBooks.length;
-  const lidosSttela = allBooks.filter(l => l.sttela === 'Sim').length;
-  const lidosRenato = allBooks.filter(l => l.renato === 'Sim').length;
-  const lidosClarice = allBooks.filter(l => l.clarice === 'Sim').length;
-  const lidoPorAlguem = l => l.sttela === 'Sim' || l.renato === 'Sim' || l.clarice === 'Sim';
-  const lidosAmbosOuAlgum = allBooks.filter(lidoPorAlguem).length;
-
-  const generoCount = {};
-  allBooks.forEach(l => {
-    const g = l.genero && l.genero.trim() !== '' ? l.genero.trim() : 'Não informado';
-    generoCount[g] = (generoCount[g] || 0) + 1;
-  });
-
-  const generoLidoCount = {};
-  allBooks.filter(lidoPorAlguem).forEach(l => {
-    const g = l.genero && l.genero.trim() !== '' ? l.genero.trim() : 'Não informado';
-    generoLidoCount[g] = (generoLidoCount[g] || 0) + 1;
-  });
-
-  const autorLidoCount = {};
-  allBooks.filter(lidoPorAlguem).forEach(l => {
-    const a = l.autor && l.autor.trim() !== '' ? l.autor.trim() : 'Desconhecido';
-    autorLidoCount[a] = (autorLidoCount[a] || 0) + 1;
-  });
-
-  return { total, lidosSttela, lidosRenato, lidosClarice, lidosAmbosOuAlgum, generoCount, generoLidoCount, autorLidoCount };
+function capitalizar(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
-function renderStatsCards(stats) {
-  const pct = stats.total ? Math.round((stats.lidosAmbosOuAlgum / stats.total) * 100) : 0;
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat"><div class="n">${stats.total}</div><div class="l">Total de livros</div></div>
-    <div class="stat"><div class="n">${pct}%</div><div class="l">Já lidos</div></div>
-    <div class="stat"><div class="n">${stats.lidosSttela}</div><div class="l">Lidos por Sttela</div></div>
-    <div class="stat"><div class="n">${stats.lidosRenato}</div><div class="l">Lidos por Renato</div></div>
-    <div class="stat"><div class="n">${stats.lidosClarice}</div><div class="l">Lidos por Clarice</div></div>
-  `;
+/**
+ * Conta valores agrupando variações de maiúsculas e acentos ("Romance" = "romance").
+ * valoresDe(livro) devolve uma lista de textos (ex.: vários autores separados por "|").
+ * O rótulo exibido é a grafia mais usada daquele valor.
+ */
+function contarPor(lista, valoresDe) {
+  const grupos = new Map();
+  lista.forEach(livro => {
+    valoresDe(livro).forEach(bruto => {
+      const valor = (bruto || '').toString().trim().replace(/\s+/g, ' ');
+      if (!valor) return;
+      const chave = removerAcentos(valor);
+      if (!grupos.has(chave)) grupos.set(chave, { total: 0, grafias: {} });
+      const g = grupos.get(chave);
+      g.total++;
+      g.grafias[valor] = (g.grafias[valor] || 0) + 1;
+    });
+  });
+  return [...grupos.values()]
+    .map(g => {
+      const rotulo = Object.entries(g.grafias).sort((a, b) => b[1] - a[1])[0][0];
+      return [capitalizar(rotulo), g.total];
+    })
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'));
+}
+const generosDe = l => [l.genero && l.genero.trim() ? l.genero : 'Não informado'];
+const autoresDe = l => (l.autor || '').split('|');
+const localDe = l => [l.local];
+
+function anoPublicacao(livro) {
+  const ano = parseInt(livro.ano, 10); // aceita "2005" e "2005-03-01"
+  const limite = new Date().getFullYear() + 1;
+  return ano >= 1000 && ano <= limite ? ano : null;
 }
 
-function topEntries(obj, n) {
-  return Object.entries(obj).sort((a,b) => b[1]-a[1]).slice(0, n);
+const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+function mesAno(d) { return `${MESES[d.getMonth()]}/${d.getFullYear()}`; }
+
+/** Desenha (ou redesenha) um gráfico de barras. Barras deitadas crescem conforme o número de itens. */
+function barChart(id, entries, color, { horizontal = false, boxId = null } = {}) {
+  if (charts[id]) charts[id].destroy();
+  if (horizontal && boxId) {
+    document.getElementById(boxId).style.height = Math.max(90, entries.length * 30 + 24) + 'px';
+  }
+  const valueAxis = { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#EFE9DA' } };
+  const labelAxis = { grid: { display: false }, ticks: { autoSkip: false } };
+  charts[id] = new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: {
+      labels: entries.map(e => e[0]),
+      datasets: [{ data: entries.map(e => e[1]), backgroundColor: color, borderRadius: 4, maxBarThickness: horizontal ? 18 : 28 }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      indexAxis: horizontal ? 'y' : 'x',
+      plugins: { legend: { display: false } },
+      scales: horizontal ? { x: valueAxis, y: labelAxis } : { x: labelAxis, y: valueAxis }
+    }
+  });
+}
+
+function vazio(texto) {
+  return `<div class="row-item"><div class="txt t2">${texto}</div></div>`;
 }
 
 function renderStats() {
-  const stats = calculateStats();
-  renderStatsCards(stats);
-
-  const green = '#2F4B3C', rust = '#C1592B', taupe = '#8C887E';
-  const palette = ['#2F4B3C','#C1592B','#8C887E','#3D5A6C','#B98A4A','#6E6A5E','#7A5C3E','#A3785A','#4E6E5A','#9C6B4F'];
-
-  if (!chartsInited) {
-    readingChart = new Chart(document.getElementById('readingChart'), {
-      type: 'doughnut',
-      data: { labels: ['Sttela','Renato','Clarice'], datasets: [{ data: [0,0,0], backgroundColor: [green, rust, '#3D5A6C'] }] },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, boxHeight: 12, padding: 14 } } } }
-    });
-    genreChart = new Chart(document.getElementById('genreChart'), {
-      type: 'bar',
-      data: { labels: [], datasets: [{ label: 'Livros', data: [], backgroundColor: taupe }] },
-      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-    });
-    mostReadGenresChart = new Chart(document.getElementById('mostReadGenresChart'), {
-      type: 'bar',
-      data: { labels: [], datasets: [{ label: 'Lidos', data: [], backgroundColor: green }] },
-      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-    });
-    mostReadAuthorsChart = new Chart(document.getElementById('mostReadAuthorsChart'), {
-      type: 'bar',
-      data: { labels: [], datasets: [{ label: 'Lidos', data: [], backgroundColor: rust }] },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }
-    });
-    readPercentageChart = new Chart(document.getElementById('readPercentageChart'), {
-      type: 'doughnut',
-      data: { labels: ['Lidos','Não lidos'], datasets: [{ data: [0,0], backgroundColor: [green, '#E4DFD3'] }] },
-      options: { plugins: { legend: { position: 'bottom' } } }
-    });
-    chartsInited = true;
+  if (window.Chart) {
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#6E6A5E';
   }
+  const total = allBooks.length;
+  const lidosAlguem = allBooks.filter(lidoPorAlguem).length;
+  const ninguem = allBooks.filter(l => !lidoPorAlguem(l));
+  const pct = (n) => total ? Math.round((n / total) * 100) : 0;
 
-  readingChart.data.datasets[0].data = [stats.lidosSttela, stats.lidosRenato, stats.lidosClarice];
-  readingChart.update();
+  // Cards do topo
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="n">${total}</div><div class="l">Livros na estante</div></div>
+    <div class="stat"><div class="n">${pct(lidosAlguem)}%</div><div class="l">Lidos por alguém</div></div>
+    <div class="stat"><div class="n">${ninguem.length}</div><div class="l">Ninguém leu</div></div>
+  `;
 
-  const generoTop = topEntries(stats.generoCount, 8);
-  genreChart.data.labels = generoTop.map(e => e[0]);
-  genreChart.data.datasets[0].data = generoTop.map(e => e[1]);
-  genreChart.data.datasets[0].backgroundColor = generoTop.map((_,i) => palette[i % palette.length]);
-  genreChart.update();
+  // Progresso de cada um
+  document.getElementById('progressBox').innerHTML = PESSOAS.map(p => {
+    const n = allBooks.filter(l => l[p] === 'Sim').length;
+    return `<div class="prog">
+      <div class="prog-top">${personDot(p)}<span class="nome">${NOMES[p]}</span><span class="val">${n} de ${total} · ${pct(n)}%</span></div>
+      <div class="bar"><div style="width:${pct(n)}%;background:${CORES[p]}"></div></div>
+    </div>`;
+  }).join('');
 
-  const generoLidoTop = topEntries(stats.generoLidoCount, 6);
-  mostReadGenresChart.data.labels = generoLidoTop.map(e => e[0]);
-  mostReadGenresChart.data.datasets[0].data = generoLidoTop.map(e => e[1]);
-  mostReadGenresChart.data.datasets[0].backgroundColor = generoLidoTop.map((_,i) => palette[i % palette.length]);
-  mostReadGenresChart.update();
+  // Quem leu o quê
+  const porQtd = [0, 0, 0, 0];
+  allBooks.forEach(l => porQtd[quantosLeram(l)]++);
+  document.getElementById('overlapBox').innerHTML = [
+    [porQtd[3], 'Os três leram'],
+    [porQtd[2], 'Dois leram'],
+    [porQtd[1], 'Só um leu'],
+    [porQtd[0], 'Ninguém leu'],
+  ].map(([n, l]) => `<div class="mini"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 
-  const autorTop = topEntries(stats.autorLidoCount, 10);
-  mostReadAuthorsChart.data.labels = autorTop.map(e => e[0]);
-  mostReadAuthorsChart.data.datasets[0].data = autorTop.map(e => e[1]);
-  mostReadAuthorsChart.update();
+  // Dicas: para cada pessoa, livros que outra pessoa já leu e ela ainda não.
+  document.getElementById('dicasBox').innerHTML = PESSOAS.map(p => {
+    const opcoes = allBooks
+      .filter(l => l[p] !== 'Sim' && lidoPorAlguem(l))
+      .sort((a, b) => quantosLeram(b) - quantosLeram(a) || (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR'));
+    if (opcoes.length === 0) {
+      return `<div class="row-item">${personDot(p)}<div class="txt"><div class="t2">${NOMES[p]} já leu tudo que os outros leram.</div></div></div>`;
+    }
+    const livro = opcoes[0];
+    const quem = PESSOAS.filter(o => livro[o] === 'Sim').map(o => NOMES[o]).join(' e ');
+    const mais = opcoes.length > 1 ? ` · mais ${opcoes.length - 1} nessa situação` : '';
+    return `<div class="row-item">${personDot(p)}<div class="txt">
+      <div class="t1">${escapeHtml(livro.titulo)}</div>
+      <div class="t2">Para ${NOMES[p]}: ${quem} já leu${mais}</div>
+    </div></div>`;
+  }).join('');
 
-  const lidos = stats.lidosAmbosOuAlgum;
-  const naoLidos = Math.max(stats.total - lidos, 0);
-  readPercentageChart.data.datasets[0].data = [lidos, naoLidos];
-  readPercentageChart.update();
+  // Esperando na estante: comprados há mais tempo e que ninguém leu
+  const esperando = ninguem.filter(l => dataCompra(l)).sort((a, b) => dataCompra(a) - dataCompra(b)).slice(0, 3);
+  document.getElementById('esperandoBox').innerHTML = esperando.length
+    ? esperando.map(l => `<div class="row-item"><div class="txt">
+        <div class="t1">${escapeHtml(l.titulo)}</div>
+        <div class="t2">${escapeHtml(primeiroAutor(l))} · comprado em ${mesAno(dataCompra(l))}</div>
+      </div></div>`).join('')
+    : vazio(ninguem.length ? 'Os livros que ninguém leu estão sem data de compra.' : 'Todos os livros já foram lidos por alguém.');
+
+  // Gênero favorito de cada um (ignora livros sem gênero)
+  document.getElementById('favGenreBox').innerHTML = PESSOAS.map(p => {
+    const top = contarPor(allBooks.filter(l => l[p] === 'Sim'), l => [l.genero])[0];
+    const txt = top
+      ? `<div class="t1">${escapeHtml(top[0])}</div><div class="t2">${NOMES[p]} · ${top[1]} livro${top[1] === 1 ? '' : 's'} lido${top[1] === 1 ? '' : 's'}</div>`
+      : `<div class="t2">${NOMES[p]} ainda não tem leituras com gênero.</div>`;
+    return `<div class="row-item">${personDot(p)}<div class="txt">${txt}</div></div>`;
+  }).join('');
+
+  if (!window.Chart) return;
+  const green = '#2F4B3C', rust = '#C1592B', taupe = '#8C887E', blue = '#3D5A6C', ocre = '#B98A4A';
+
+  barChart('genreChart', contarPor(allBooks, generosDe).slice(0, 8), taupe, { horizontal: true, boxId: 'genreBox' });
+  barChart('mostReadGenresChart', contarPor(allBooks.filter(lidoPorAlguem), generosDe).slice(0, 6), green, { horizontal: true, boxId: 'mostReadGenresBox' });
+  barChart('mostReadAuthorsChart', contarPor(allBooks.filter(lidoPorAlguem), autoresDe).slice(0, 10), rust, { horizontal: true, boxId: 'authorsBox' });
+
+  // Compras por ano (inclui anos sem compra no meio, com zero)
+  const porAno = {};
+  allBooks.forEach(l => { const d = dataCompra(l); if (d) porAno[d.getFullYear()] = (porAno[d.getFullYear()] || 0) + 1; });
+  const anos = Object.keys(porAno).map(Number);
+  const comprasEntries = [];
+  if (anos.length) for (let a = Math.min(...anos); a <= Math.max(...anos); a++) comprasEntries.push([String(a), porAno[a] || 0]);
+  barChart('comprasChart', comprasEntries, blue);
+  const semData = total - allBooks.filter(dataCompra).length;
+  document.getElementById('comprasNote').textContent = semData ? `${semData} livro${semData === 1 ? '' : 's'} sem data de compra.` : '';
+
+  // Onde vocês compram
+  const locais = contarPor(allBooks, localDe);
+  barChart('locaisChart', locais.slice(0, 8), ocre, { horizontal: true, boxId: 'locaisBox' });
+  const semLocal = allBooks.filter(l => !(l.local || '').trim()).length;
+  document.getElementById('locaisNote').textContent = semLocal ? `${semLocal} livro${semLocal === 1 ? '' : 's'} sem local de compra.` : '';
+
+  // Idade da estante: por década de publicação
+  const comAno = allBooks.filter(anoPublicacao);
+  const porDecada = {};
+  comAno.forEach(l => { const d = Math.floor(anoPublicacao(l) / 10) * 10; porDecada[d] = (porDecada[d] || 0) + 1; });
+  const decadas = Object.keys(porDecada).map(Number).sort((a, b) => a - b);
+  barChart('decadasChart', decadas.map(d => [`${d}s`, porDecada[d]]), green);
+  if (comAno.length) {
+    const ord = [...comAno].sort((a, b) => anoPublicacao(a) - anoPublicacao(b));
+    const linha = (rot, l) => `<div class="row-item"><div class="txt">
+      <div class="t2">${rot}</div><div class="t1">${escapeHtml(l.titulo)} <span class="t2">(${anoPublicacao(l)})</span></div>
+    </div></div>`;
+    document.getElementById('extremosBox').innerHTML = linha('Mais antigo', ord[0]) + linha('Mais novo', ord[ord.length - 1]);
+  } else {
+    document.getElementById('extremosBox').innerHTML = vazio('Nenhum livro com ano de publicação.');
+  }
 }
 
 // =================================================================
 // SORTEAR LIVROS (só leitura: não grava nada na API)
 // =================================================================
-const NOMES = { sttela: 'Sttela', renato: 'Renato', clarice: 'Clarice' };
 let pessoaSorteio = null;
 let ultimoSorteadoId = null;
 let sorteioGen = 0;
