@@ -69,7 +69,9 @@
   .chip.active{background:var(--green);border-color:var(--green);color:#fff;}
 
   main{padding:16px 18px 8px;}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px;}
+  .stats-row .stat{grid-column:span 2;}
+  .stats-row .stat:nth-child(-n+2){grid-column:span 3;}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;}
   .stat .n{font-family:'Fraunces',serif;font-size:22px;}
   .stat .l{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
@@ -168,9 +170,9 @@
   .field input:focus{border-color:var(--green);}
   .row2{display:flex;gap:10px;}
   .row2 .field{flex:1;}
-  .switches{display:flex;gap:10px;margin-bottom:6px;}
+  .switches{display:flex;gap:8px;margin-bottom:6px;}
   .switch{
-    flex:1;border:1px solid var(--line);border-radius:12px;padding:12px;
+    flex:1;border:1px solid var(--line);border-radius:12px;padding:12px 10px;gap:6px;
     display:flex;align-items:center;justify-content:space-between;
     background:var(--card);cursor:pointer;
   }
@@ -243,6 +245,7 @@
       <div class="chip active" data-filter="todos">Todos</div>
       <div class="chip" data-filter="sttela">Sttela</div>
       <div class="chip" data-filter="renato">Renato</div>
+      <div class="chip" data-filter="clarice">Clarice</div>
     </div>
   </div>
 
@@ -322,6 +325,7 @@
       <div class="switches">
         <label class="switch"><span>Sttela leu</span><input type="checkbox" id="sttela"></label>
         <label class="switch"><span>Renato leu</span><input type="checkbox" id="renato"></label>
+        <label class="switch"><span>Clarice leu</span><input type="checkbox" id="clarice"></label>
       </div>
       <div class="sheet-foot" style="padding:6px 0 0;">
         <button type="submit" class="btn-primary" id="salvarBtn">Salvar</button>
@@ -456,7 +460,8 @@ function aplicarFiltros() {
     const matchFiltro =
       currentFilter === 'todos' ||
       (currentFilter === 'sttela' && livro.sttela === 'Sim') ||
-      (currentFilter === 'renato' && livro.renato === 'Sim');
+      (currentFilter === 'renato' && livro.renato === 'Sim') ||
+      (currentFilter === 'clarice' && livro.clarice === 'Sim');
     return matchTermo && matchFiltro;
   });
   visibleCount = PAGE_SIZE;
@@ -493,6 +498,7 @@ function renderList() {
     let tagsWho = '';
     if (livro.sttela === 'Sim') tagsWho += `<span class="tag who">Sttela leu</span>`;
     if (livro.renato === 'Sim') tagsWho += `<span class="tag who">Renato leu</span>`;
+    if (livro.clarice === 'Sim') tagsWho += `<span class="tag who">Clarice leu</span>`;
     div.innerHTML = `
       <div class="spine-wrap">
         <div class="spine-fallback" style="background:${colorFor(livro.titulo)}">${initialsFor(livro.titulo)}</div>
@@ -621,6 +627,7 @@ function abrirModalEditar(livro) {
   document.getElementById('genero').value = livro.genero || '';
   document.getElementById('sttela').checked = livro.sttela === 'Sim';
   document.getElementById('renato').checked = livro.renato === 'Sim';
+  document.getElementById('clarice').checked = livro.clarice === 'Sim';
   document.getElementById('formTitle').textContent = 'Editar livro';
   openSheet('sheetForm','backdropForm');
 }
@@ -687,6 +694,7 @@ livroForm.addEventListener('submit', async (e) => {
     genero: document.getElementById('genero').value.trim().replace(/\s+/g, ' '),
     sttela: document.getElementById('sttela').checked ? 'Sim' : 'Não',
     renato: document.getElementById('renato').checked ? 'Sim' : 'Não',
+    clarice: document.getElementById('clarice').checked ? 'Sim' : 'Não',
   };
   const payload = id ? { action: 'update', id, ...livroData } : { action: 'create', ...livroData };
 
@@ -817,7 +825,9 @@ function calculateStats() {
   const total = allBooks.length;
   const lidosSttela = allBooks.filter(l => l.sttela === 'Sim').length;
   const lidosRenato = allBooks.filter(l => l.renato === 'Sim').length;
-  const lidosAmbosOuAlgum = allBooks.filter(l => l.sttela === 'Sim' || l.renato === 'Sim').length;
+  const lidosClarice = allBooks.filter(l => l.clarice === 'Sim').length;
+  const lidoPorAlguem = l => l.sttela === 'Sim' || l.renato === 'Sim' || l.clarice === 'Sim';
+  const lidosAmbosOuAlgum = allBooks.filter(lidoPorAlguem).length;
 
   const generoCount = {};
   allBooks.forEach(l => {
@@ -826,18 +836,18 @@ function calculateStats() {
   });
 
   const generoLidoCount = {};
-  allBooks.filter(l => l.sttela === 'Sim' || l.renato === 'Sim').forEach(l => {
+  allBooks.filter(lidoPorAlguem).forEach(l => {
     const g = l.genero && l.genero.trim() !== '' ? l.genero.trim() : 'Não informado';
     generoLidoCount[g] = (generoLidoCount[g] || 0) + 1;
   });
 
   const autorLidoCount = {};
-  allBooks.filter(l => l.sttela === 'Sim' || l.renato === 'Sim').forEach(l => {
+  allBooks.filter(lidoPorAlguem).forEach(l => {
     const a = l.autor && l.autor.trim() !== '' ? l.autor.trim() : 'Desconhecido';
     autorLidoCount[a] = (autorLidoCount[a] || 0) + 1;
   });
 
-  return { total, lidosSttela, lidosRenato, lidosAmbosOuAlgum, generoCount, generoLidoCount, autorLidoCount };
+  return { total, lidosSttela, lidosRenato, lidosClarice, lidosAmbosOuAlgum, generoCount, generoLidoCount, autorLidoCount };
 }
 
 function renderStatsCards(stats) {
@@ -847,6 +857,7 @@ function renderStatsCards(stats) {
     <div class="stat"><div class="n">${pct}%</div><div class="l">Já lidos</div></div>
     <div class="stat"><div class="n">${stats.lidosSttela}</div><div class="l">Lidos por Sttela</div></div>
     <div class="stat"><div class="n">${stats.lidosRenato}</div><div class="l">Lidos por Renato</div></div>
+    <div class="stat"><div class="n">${stats.lidosClarice}</div><div class="l">Lidos por Clarice</div></div>
   `;
 }
 
@@ -864,7 +875,7 @@ function renderStats() {
   if (!chartsInited) {
     readingChart = new Chart(document.getElementById('readingChart'), {
       type: 'doughnut',
-      data: { labels: ['Sttela','Renato'], datasets: [{ data: [0,0], backgroundColor: [green, rust] }] },
+      data: { labels: ['Sttela','Renato','Clarice'], datasets: [{ data: [0,0,0], backgroundColor: [green, rust, '#3D5A6C'] }] },
       options: { plugins: { legend: { position: 'bottom' } } }
     });
     genreChart = new Chart(document.getElementById('genreChart'), {
@@ -890,7 +901,7 @@ function renderStats() {
     chartsInited = true;
   }
 
-  readingChart.data.datasets[0].data = [stats.lidosSttela, stats.lidosRenato];
+  readingChart.data.datasets[0].data = [stats.lidosSttela, stats.lidosRenato, stats.lidosClarice];
   readingChart.update();
 
   const generoTop = topEntries(stats.generoCount, 8);
