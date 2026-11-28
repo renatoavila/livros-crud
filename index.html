@@ -225,7 +225,7 @@
     max-width:90%;text-align:center;
   }
   .toast.show{opacity:1;}
-  .toast.err{background:var(--danger);}
+  .toast.toast-err{background:var(--danger);}
 
   .spinner{
     width:22px;height:22px;border-radius:50%;
@@ -460,8 +460,8 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
 <script>
 // =================================================================
 // CONFIG - mesma API do sistema atual (Google Apps Script / Sheets)
@@ -500,7 +500,7 @@ const toastEl = document.getElementById('toast');
 let toastTimer;
 function showToast(message, type = 'success') {
   toastEl.textContent = message;
-  toastEl.className = 'toast show' + (type === 'danger' ? ' err' : '');
+  toastEl.className = 'toast show' + (type === 'danger' ? ' toast-err' : '');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
 }
@@ -594,10 +594,15 @@ document.getElementById('ordenarSelect').addEventListener('change', (e) => {
 function primeiroAutor(livro) {
   return (livro.autor || '').split('|')[0].trim();
 }
-function dataCompra(livro) {
-  if (!livro.data) return null;
-  const d = new Date(livro.data);
+/** Lê uma data da API. "AAAA-MM-DD" puro é lido no fuso local (new Date leria em UTC, e no Brasil viraria o dia anterior). */
+function lerData(valor) {
+  if (!valor) return null;
+  const m = String(valor).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(valor);
   return isNaN(d) ? null : d;
+}
+function dataCompra(livro) {
+  return lerData(livro.data);
 }
 function ordenarLivros(lista) {
   const porTitulo = (a, b) => (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR');
@@ -762,9 +767,8 @@ function abrirModalNovoLivro() {
   openSheet('sheetForm','backdropForm');
 }
 function formatarDataParaInputDate(isoDate) {
-  if (!isoDate) return "";
-  const date = new Date(isoDate);
-  if (isNaN(date)) return "";
+  const date = lerData(isoDate);
+  if (!date) return "";
   const ano = date.getFullYear();
   const mes = String(date.getMonth() + 1).padStart(2, '0');
   const dia = String(date.getDate()).padStart(2, '0');
@@ -891,23 +895,35 @@ document.getElementById('confirmDelete').onclick = async () => {
 // =================================================================
 document.getElementById('scanBtn').onclick = abrirLeitorCodigoBarras;
 
+let leitorAberto = false;
 function abrirLeitorCodigoBarras() {
+  leitorAberto = true;
   openSheet('sheetBarcode','backdropBarcode');
   setTimeout(() => {
+    if (!leitorAberto) return; // fechou antes da câmera ligar
     const readerEl = document.getElementById('reader');
     readerEl.innerHTML = '<div class="spinner"></div>';
-    html5QrCode = new Html5Qrcode('reader');
+    const leitor = new Html5Qrcode('reader');
+    html5QrCode = leitor;
+    let lido = false;
     const config = { fps: 10, qrbox: { width: 230, height: 230 } };
     html5QrCode.start(
       { facingMode: 'environment' },
       config,
       (decodedText) => {
+        if (lido) return; // o leitor pode chamar várias vezes antes de parar
+        lido = true;
         fecharLeitor();
         if (/^\d{10,13}$/.test(decodedText)) buscarLivroPorISBN(decodedText);
         else showToast('O código lido não parece ser um ISBN válido.', 'danger');
       },
       () => {}
-    ).catch(err => {
+    ).then(() => {
+      // Se a folha foi fechada enquanto a câmera ligava, desliga agora.
+      if (!leitorAberto && leitor.isScanning) leitor.stop().then(() => leitor.clear()).catch(() => {});
+    }).catch(err => {
+      if (!leitorAberto) return;
+      leitorAberto = false;
       console.error('Erro ao iniciar o leitor:', err);
       showToast('Não foi possível acessar a câmera. Verifique as permissões.', 'danger');
       closeSheet('sheetBarcode','backdropBarcode');
@@ -915,6 +931,7 @@ function abrirLeitorCodigoBarras() {
   }, 260);
 }
 function fecharLeitor() {
+  leitorAberto = false;
   if (html5QrCode && html5QrCode.isScanning) {
     html5QrCode.stop().then(() => { html5QrCode.clear(); html5QrCode = null; closeSheet('sheetBarcode','backdropBarcode'); })
       .catch(() => closeSheet('sheetBarcode','backdropBarcode'));
@@ -940,23 +957,25 @@ async function buscarLivroPorISBN(isbn) {
       title = data.title; authors = data.authors; year = data.year;
     }
   } catch {}
-  if (!title || !authors) {
+  if (!title || !authors || !authors.length) {
     try {
       const resp2 = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
       const jb = await resp2.json();
       const info = jb.items?.[0]?.volumeInfo;
       if (info) {
         title = title || (info.subtitle ? `${info.title}: ${info.subtitle}` : info.title);
-        authors = authors || info.authors;
+        if (!authors || !authors.length) authors = info.authors;
         year = year || info.publishedDate;
       }
     } catch { showToast('Erro ao consultar APIs.', 'danger'); }
   }
 
-  if (title && authors) {
+  if (title && authors && authors.length) {
     document.getElementById('titulo').value = capitalizeComExcecoes(title);
     document.getElementById('autor').value = authors.map(n => capitalizeComExcecoes(n)).join(' | ');
-    document.getElementById('ano').value = year || '';
+    // O campo é numérico: o Google manda "2005-03-01", então fica só o ano.
+    const anoMatch = String(year || '').match(/\d{4}/);
+    document.getElementById('ano').value = anoMatch ? anoMatch[0] : '';
   } else {
     showToast('Livro não encontrado nas APIs consultadas.', 'danger');
   }
